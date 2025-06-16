@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Sistema de gestão de fiados para mercadinhos">
+  <title>Fiados do Mercadinho</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="layout.css">
+</head>
+
+<body>
+  <div class="notificacao-container" id="notificacaoContainer" aria-live="polite"></div>
+  
+  <main class="conteiner">
+    <section class="cartao" aria-labelledby="gestaoClientes">
+      <h2 id="gestaoClientes"><i class="fas fa-users icone-titulo" aria-hidden="true"></i>Gestão de Clientes</h2>
+      
+      <div class="grupo-form">
+        <label for="nomeCliente" class="rotulo">Nome do Cliente</label>
+        <input type="text" id="nomeCliente" placeholder="Digite o nome completo" 
+               aria-label="Nome do cliente" aria-describedby="erroCliente" aria-required="true">
+        <div id="erroCliente" class="msg-erro" role="alert"></div>
+        <button id="btnAdicionarCliente" aria-label="Adicionar novo cliente">
+          <i class="fas fa-user-plus btn-icone" aria-hidden="true"></i>Adicionar Cliente
+        </button>
+      </div>
+      
+      <div class="busca-clientes">
+        <input type="search" id="buscaCliente" placeholder="Buscar cliente..." 
+               aria-label="Buscar clientes cadastrados" aria-controls="listaClientes">
+      </div>
+      
+      <h3>Clientes Cadastrados</h3>
+      <ul id="listaClientes" class="lista-clientes" aria-live="polite">
+        <li class="sem-registros">Nenhum cliente cadastrado</li>
+      </ul>
+      
+      <button id="btnBackup" class="btn-alerta" style="margin-top: 1rem;" aria-label="Exportar dados dos clientes">
+        <i class="fas fa-file-export" aria-hidden="true"></i> Exportar Dados
+      </button>
+    </section>
+    
+    <section class="cartao" aria-labelledby="registroCompras">
+      <h2 id="registroCompras"><i class="fas fa-shopping-basket icone-titulo" aria-hidden="true"></i>Registro de Compras</h2>
+      
+      <div class="status-cliente" id="statusCliente" style="display: none;" aria-live="polite">
+        <span class="bolinha" aria-hidden="true"></span>
+        <span id="nomeClienteSelecionado">Cliente selecionado</span>
+      </div>
+      
+      <div class="grupo-form">
+        <label for="nomeProduto" class="rotulo">Descrição do Produto</label>
+        <input type="text" id="nomeProduto" placeholder="Nome do produto" 
+               aria-label="Descrição do produto" aria-describedby="erroProduto" aria-required="true">
+        <label for="precoProduto" class="rotulo">Valor (R$)</label>
+        <input type="number" id="precoProduto" placeholder="0,00" step="0.01" min="0.01"
+               aria-label="Valor do produto em reais" aria-describedby="erroProduto" aria-required="true">
+        <div id="erroProduto" class="msg-erro" role="alert"></div>
+        <button id="btnAdicionarProduto" aria-label="Registrar nova compra">
+          <i class="fas fa-cart-plus btn-icone" aria-hidden="true"></i>Registrar Compra
+        </button>
+      </div>
+      
+      <h3>Compras Registradas</h3>
+      <ul id="listaProdutos" class="lista-produtos" aria-live="polite">
+        <li class="sem-registros">Selecione um cliente para ver as compras</li>
+      </ul>
+      <div id="totalCompra" class="total" aria-live="polite">Total: <span class="total-valor">R$ 0,00</span></div>
+      
+      <div class="acoes-cliente" id="acoesCliente" style="display: none;">
+        <button id="btnLiquidar" class="btn-sucesso" aria-label="Liquidar toda a dívida do cliente">
+          <i class="fas fa-check-circle btn-icone" aria-hidden="true"></i>Liquidar Dívida
+        </button>
+        <button id="btnRemoverCliente" class="btn-perigo" aria-label="Remover cliente selecionado">
+          <i class="fas fa-user-minus btn-icone" aria-hidden="true"></i>Remover Cliente
+        </button>
+      </div>
+    </section>
+  </main>
+  
+  <script type="module" src="lógica/principal.js"></script>
+</body>
+
+</html>
