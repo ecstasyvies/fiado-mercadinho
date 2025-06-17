@@ -30,7 +30,7 @@
 ## 💾 Como Usar
 
 1. Baixe ou clone o repositório
-2. Abra o arquivo `interface.html` em um navegador moderno
+2. Abra o arquivo `index.html` em um navegador moderno
 3. Use as funções diretamente na interface:
 
    - **Adicionar cliente** → Digite o nome e clique em "Adicionar"
@@ -44,7 +44,7 @@
 
 | Arquivo         | Função                                      |
 |-----------------|---------------------------------------------|
-| `interface.html`| Interface principal e entrada do sistema    |
+| `index.html`| Interface principal e entrada do sistema    |
 | `principal.js`  | Coordenação geral e escuta de eventos       |
 | `clientes.js`   | Gerenciamento de clientes                   |
 | `produtos.js`   | Registro e controle de fiados               |
