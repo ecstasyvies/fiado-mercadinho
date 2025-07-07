@@ -70,16 +70,13 @@
 
 ---
 
-## 💡 Melhorias Futuras
+## ✅ Melhorias Realizadas
 
-- **`importarDados()`**: Permitir carregamento de arquivos JSON previamente exportados, com validação da estrutura para evitar corrupção do banco. Melhora a confiabilidade de backups manuais.
-- **Senha local**: Implementar proteção básica via `localStorage` com `btoa()` para armazenar um hash local. O sistema exibe um prompt ao iniciar. Serve como barreira para usuários casuais, sem pretensão de segurança forte.
-- **Relatório de fiados**: Exibir painel com:
-  - Total de dívidas ativas (ex: "R$ 5.200 em fiados")
-  - Top 5 clientes com maior número de registros  
-  Pode ser feito com `reduce()` ou com uma biblioteca leve como `Chart.js`, mantendo o foco em simplicidade e clareza visual.
-
-Essas sugestões seguem a filosofia do projeto e são compatíveis com IndexedDB, agregando valor sem aumentar a complexidade.
+- Importação de dados JSON com validação e segurança
+- Proteção por senha local (opcional)
+- Relatório de fiados com estatísticas e top clientes
+- Interface escura, acessível e responsiva
+- Modais e botões com contraste e acessibilidade aprimorados
 
 ---
 

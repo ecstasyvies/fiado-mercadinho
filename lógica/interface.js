@@ -5,12 +5,15 @@ export const MENSAGENS = {
   produtoRemovido: 'Produto removido com sucesso!',
   divididaLiquidada: 'Dívida liquidada com sucesso!',
   backupExportado: 'Backup exportado com sucesso!',
+  dadosImportados: 'Dados importados com sucesso!',
   erroGeral: 'Erro na operação',
   erroNomeVazio: 'Insira um nome válido',
   erroCamposObrigatorios: 'Preencha todos os campos',
   erroClienteNaoSelecionado: 'Selecione um cliente antes de adicionar produtos',
   backupVazio: 'Nenhum dado para exportar',
-  confirmacaoRemocao: 'Tem certeza que deseja remover este item?'
+  confirmacaoRemocao: 'Tem certeza que deseja remover este item?',
+  senhaConfigurada: 'Senha configurada com sucesso!',
+  senhaRemovida: 'Proteção por senha removida'
 };
 
 export function mostrarNotificacao(mensagem, tipo = 'info') {
@@ -61,25 +64,16 @@ export function mostrarNotificacao(mensagem, tipo = 'info') {
 
 export function mostrarConfirmacao(titulo, mensagem, tipo, callbackConfirmar, callbackCancelar = () => {}) {
   const overlay = document.createElement('div');
-  overlay.style.position = 'fixed';
-  overlay.style.top = '0';
-  overlay.style.left = '0';
-  overlay.style.right = '0';
-  overlay.style.bottom = '0';
-  overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
-  overlay.style.display = 'flex';
-  overlay.style.justifyContent = 'center';
-  overlay.style.alignItems = 'center';
-  overlay.style.zIndex = '1000';
-  
+  overlay.className = 'modal-overlay-escuro';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+  overlay.setAttribute('aria-label', titulo);
+
   const modal = document.createElement('div');
-  modal.style.backgroundColor = 'white';
-  modal.style.padding = '2rem';
-  modal.style.borderRadius = 'var(--raio)';
-  modal.style.maxWidth = '500px';
-  modal.style.width = '90%';
-  modal.style.boxShadow = 'var(--sombra)';
-  
+  modal.className = 'modal-escuro';
+  modal.tabIndex = -1;
+  modal.style.position = 'relative';
+
   let icone, cor;
   switch (tipo) {
     case 'error':
@@ -98,41 +92,53 @@ export function mostrarConfirmacao(titulo, mensagem, tipo, callbackConfirmar, ca
       icone = 'info-circle';
       cor = 'var(--primaria)';
   }
-  
+
   modal.innerHTML = `
     <div style="text-align: center; margin-bottom: 1.5rem;">
-        <i class="fas fa-${icone}" style="font-size: 3rem; color: ${cor}; margin-bottom: 1rem;"></i>
-        <h3 style="margin-bottom: 0.5rem; color: var(--escura);">${titulo}</h3>
-        <p style="color: var(--cinza-escuro);">${mensagem}</p>
+        <i class="fas fa-${icone} modal-icone" style="color: ${cor};"></i>
+        <h3 class="modal-titulo">${titulo}</h3>
+        <p style="color: #adb5bd;">${mensagem.replace(/\n/g, '<br>')}</p>
     </div>
     <div style="display: flex; gap: 1rem; justify-content: center;">
-        <button id="confirmarCancelar" style="background: var(--cinza-medio);">Cancelar</button>
-        <button id="confirmarOk" style="background: ${cor};">Confirmar</button>
+        <button id="confirmarCancelar" class="modal-botao alerta" aria-label="Cancelar ação">Cancelar</button>
+        <button id="confirmarOk" class="modal-botao" aria-label="Confirmar ação">Confirmar</button>
     </div>
   `;
-  
+
   overlay.appendChild(modal);
   document.body.appendChild(overlay);
-  
+
+  // Foco inicial no modal
+  setTimeout(() => { modal.focus(); }, 50);
+
   const btnCancelar = overlay.querySelector('#confirmarCancelar');
   const btnConfirmar = overlay.querySelector('#confirmarOk');
-  
+
   btnCancelar.addEventListener('click', () => {
     overlay.remove();
     callbackCancelar();
   });
-  
+
   btnConfirmar.addEventListener('click', () => {
     overlay.remove();
     callbackConfirmar();
   });
-  
+
   overlay.addEventListener('click', (e) => {
     if (e.target === overlay) {
       overlay.remove();
       callbackCancelar();
     }
   });
+
+  // Acessibilidade: fechar com ESC
+  overlay.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      overlay.remove();
+      callbackCancelar();
+    }
+  });
+  modal.focus();
 }
 
 export function setButtonLoading(button, isLoading) {

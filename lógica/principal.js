@@ -1,7 +1,10 @@
-import { abrirBancoDados, exportarDados, db } from './dataset.js';
+import { abrirBancoDados, exportarDados, importarDados, db } from './dataset.js';
 import { adicionarCliente, listarClientes, buscarClientes, removerCliente, idClienteSelecionado, nomeClienteSelecionado } from './clientes.js';
 import { adicionarProduto, listarProdutos, removerProduto, liquidarDivida } from './produtos.js';
 import { mostrarNotificacao, MENSAGENS } from './interface.js';
+import { mostrarPromptSenha } from './seguranca.js';
+import { mostrarRelatorio } from './relatorio.js';
+import { mostrarConfiguracoes } from './configuracoes.js';
 
 function isMobileDevice() {
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -10,7 +13,26 @@ function isMobileDevice() {
 window.removerProduto = removerProduto;
 window.listarClientes = listarClientes;
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  // Verificar senha antes de inicializar o sistema
+  const acessoPermitido = await mostrarPromptSenha();
+  
+  if (!acessoPermitido) {
+    // Se o usuário cancelou, mostrar mensagem e não inicializar
+    document.body.innerHTML = `
+      <div style="display: flex; justify-content: center; align-items: center; height: 100vh; text-align: center;">
+        <div>
+          <h2>Acesso Negado</h2>
+          <p>Você precisa fornecer uma senha válida para acessar o sistema.</p>
+          <button onclick="location.reload()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: var(--primaria); color: white; border: none; border-radius: var(--raio-pequeno); cursor: pointer;">
+            Tentar Novamente
+          </button>
+        </div>
+      </div>
+    `;
+    return;
+  }
+  
   document.getElementById('btnAdicionarCliente').addEventListener('click', adicionarCliente);
   document.getElementById('btnAdicionarProduto').addEventListener('click', adicionarProduto);
   document.getElementById('btnLiquidar').addEventListener('click', liquidarDivida);
@@ -99,5 +121,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   document.getElementById('btnBackup').addEventListener('click', exportarDados);
+  document.getElementById('btnImportar').addEventListener('click', importarDados);
+  document.getElementById('btnRelatorio').addEventListener('click', mostrarRelatorio);
+  document.getElementById('btnConfiguracoes').addEventListener('click', mostrarConfiguracoes);
   abrirBancoDados();
 });
