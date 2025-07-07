@@ -13,6 +13,12 @@
 <body>
   <div class="notificacao-container" id="notificacaoContainer" aria-live="polite"></div>
   
+  <header style="text-align: right; margin-bottom: 1rem;">
+    <button id="btnConfiguracoes" class="btn-alerta" style="width: auto; padding: 0.5rem 1rem; font-size: 0.9rem;" aria-label="Configurações do sistema">
+      <i class="fas fa-cog" aria-hidden="true"></i> Configurações
+    </button>
+  </header>
+  
   <main class="conteiner">
     <section class="cartao" aria-labelledby="gestaoClientes">
       <h2 id="gestaoClientes"><i class="fas fa-users icone-titulo" aria-hidden="true"></i>Gestão de Clientes</h2>
@@ -37,9 +43,17 @@
         <li class="sem-registros">Nenhum cliente cadastrado</li>
       </ul>
       
-      <button id="btnBackup" class="btn-alerta" style="margin-top: 1rem;" aria-label="Exportar dados dos clientes">
-        <i class="fas fa-file-export" aria-hidden="true"></i> Exportar Dados
-      </button>
+      <div class="acoes-backup" style="margin-top: 1rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+        <button id="btnBackup" class="btn-alerta" aria-label="Exportar dados dos clientes">
+          <i class="fas fa-file-export" aria-hidden="true"></i> Exportar Dados
+        </button>
+        <button id="btnImportar" class="btn-alerta" aria-label="Importar dados de backup">
+          <i class="fas fa-file-import" aria-hidden="true"></i> Importar Dados
+        </button>
+        <button id="btnRelatorio" class="btn-alerta" aria-label="Ver relatório de fiados">
+          <i class="fas fa-chart-bar" aria-hidden="true"></i> Relatório
+        </button>
+      </div>
     </section>
     
     <section class="cartao" aria-labelledby="registroCompras">
