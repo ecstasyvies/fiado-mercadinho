@@ -24,7 +24,6 @@ export function abrirBancoDados() {
   };
 }
 
-// Função para validar estrutura dos dados importados
 function validarEstruturaDados(dados) {
   if (!Array.isArray(dados)) {
     throw new Error('Formato inválido: dados devem ser um array');
@@ -33,22 +32,18 @@ function validarEstruturaDados(dados) {
   for (let i = 0; i < dados.length; i++) {
     const cliente = dados[i];
     
-    // Verificar se é um objeto
     if (typeof cliente !== 'object' || cliente === null) {
       throw new Error(`Cliente ${i + 1}: deve ser um objeto válido`);
     }
     
-    // Verificar campos obrigatórios
     if (!cliente.nome || typeof cliente.nome !== 'string' || cliente.nome.trim() === '') {
       throw new Error(`Cliente ${i + 1}: nome é obrigatório e deve ser uma string válida`);
     }
     
-    // Verificar se produtos é um array (opcional)
     if (cliente.produtos !== undefined && !Array.isArray(cliente.produtos)) {
       throw new Error(`Cliente ${i + 1}: produtos deve ser um array`);
     }
     
-    // Validar produtos se existirem
     if (cliente.produtos && cliente.produtos.length > 0) {
       for (let j = 0; j < cliente.produtos.length; j++) {
         const produto = cliente.produtos[j];
@@ -86,10 +81,8 @@ export function importarDados() {
       try {
         const dados = JSON.parse(e.target.result);
         
-        // Validar estrutura
         validarEstruturaDados(dados);
         
-        // Confirmar importação
         mostrarConfirmacao(
           'Importar Dados',
           `Encontrados ${dados.length} clientes para importar.\n\nATENÇÃO: Esta operação irá substituir todos os dados atuais!\n\nDeseja continuar?`,
@@ -98,16 +91,13 @@ export function importarDados() {
             const transacao = db.transaction(['clientes'], 'readwrite');
             const armazenamento = transacao.objectStore('clientes');
             
-            // Limpar dados existentes
             const requisicaoLimpar = armazenamento.clear();
             
             requisicaoLimpar.onsuccess = () => {
               let importados = 0;
               let erros = 0;
               
-              // Importar novos dados
               dados.forEach((cliente, index) => {
-                // Remover ID se existir para evitar conflitos
                 const clienteLimpo = { ...cliente };
                 delete clienteLimpo.id;
                 

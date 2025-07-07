@@ -108,7 +108,6 @@ export function mostrarConfirmacao(titulo, mensagem, tipo, callbackConfirmar, ca
   overlay.appendChild(modal);
   document.body.appendChild(overlay);
 
-  // Foco inicial no modal
   setTimeout(() => { modal.focus(); }, 50);
 
   const btnCancelar = overlay.querySelector('#confirmarCancelar');
@@ -131,7 +130,6 @@ export function mostrarConfirmacao(titulo, mensagem, tipo, callbackConfirmar, ca
     }
   });
 
-  // Acessibilidade: fechar com ESC
   overlay.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       overlay.remove();

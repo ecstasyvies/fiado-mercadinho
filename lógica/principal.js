@@ -14,11 +14,9 @@ window.removerProduto = removerProduto;
 window.listarClientes = listarClientes;
 
 document.addEventListener('DOMContentLoaded', async () => {
-  // Verificar senha antes de inicializar o sistema
   const acessoPermitido = await mostrarPromptSenha();
   
   if (!acessoPermitido) {
-    // Se o usuário cancelou, mostrar mensagem e não inicializar
     document.body.innerHTML = `
       <div style="display: flex; justify-content: center; align-items: center; height: 100vh; text-align: center;">
         <div>

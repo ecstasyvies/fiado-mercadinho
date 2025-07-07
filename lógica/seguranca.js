@@ -31,28 +31,24 @@ export function configurarSenha(senha) {
   mostrarNotificacao('Senha configurada com sucesso!', 'sucesso');
 }
 
-// Função para verificar senha
 export function verificarSenha(senha) {
   const hashArmazenado = localStorage.getItem(CHAVE_SENHA);
   if (!hashArmazenado) {
-    // Se não há senha configurada, usar senha padrão
     return senha === SENHA_PADRAO;
   }
   const hashDigitado = criarHash(senha);
   return hashDigitado === hashArmazenado;
 }
 
-// Função para remover senha (desabilitar proteção)
 export function removerSenha() {
   localStorage.removeItem(CHAVE_SENHA);
   localStorage.setItem(CHAVE_SENHA_ATIVA, 'false');
   mostrarNotificacao('Proteção por senha removida', 'sucesso');
 }
 
-// Função para mostrar prompt de senha
 export function mostrarPromptSenha() {
   return new Promise((resolve) => {
-    // Se a senha não está ativa, não pede senha
+
     if (!senhaAtiva()) {
       resolve(true);
       return;

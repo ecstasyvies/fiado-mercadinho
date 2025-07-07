@@ -1,7 +1,6 @@
 import { db } from './dataset.js';
 import { mostrarNotificacao } from './interface.js';
 
-// Função para calcular estatísticas gerais
 export function calcularEstatisticas() {
   return new Promise((resolve) => {
     const transacao = db.transaction(['clientes'], 'readonly');
@@ -16,7 +15,6 @@ export function calcularEstatisticas() {
       let clientesComDivida = 0;
       let totalProdutos = 0;
       
-      // Calcular totais
       clientes.forEach(cliente => {
         if (cliente.produtos && cliente.produtos.length > 0) {
           clientesComDivida++;
@@ -27,7 +25,6 @@ export function calcularEstatisticas() {
         }
       });
       
-      // Top 5 clientes com mais produtos
       const clientesOrdenados = [...clientes]
         .filter(cliente => cliente.produtos && cliente.produtos.length > 0)
         .sort((a, b) => (b.produtos?.length || 0) - (a.produtos?.length || 0))
@@ -55,7 +52,6 @@ export function calcularEstatisticas() {
   });
 }
 
-// Função para mostrar modal de relatório
 export function mostrarRelatorio() {
   calcularEstatisticas().then(stats => {
     const overlay = document.createElement('div');
@@ -75,7 +71,7 @@ export function mostrarRelatorio() {
         <h3 class="modal-titulo">Relatório de Fiados</h3>
         <p style="color: #adb5bd;">Resumo geral dos dados do sistema</p>
       </div>
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+      <div class="modal-estatisticas" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
         <div style="background: var(--clara); padding: 1rem; border-radius: var(--raio-pequeno); text-align: center;">
           <div style="font-size: 2rem; font-weight: bold; color: var(--primaria);">R$ ${stats.totalDividas.toFixed(2)}</div>
           <div style="color: #adb5bd; font-size: 0.9rem;">Total em Fiados</div>
@@ -114,27 +110,42 @@ export function mostrarRelatorio() {
           </div>
         </div>
       ` : ''}
-      <div style="text-align: center; margin-top: 2rem;">
+      <div style="text-align: center; margin-top: auto; padding-top: 1rem;">
         <button id="fecharRelatorio" class="modal-botao" aria-label="Fechar relatório">Fechar</button>
       </div>
     `;
+    
     overlay.appendChild(modal);
     document.body.appendChild(overlay);
-    setTimeout(() => { modal.focus(); }, 50);
+    
+    setTimeout(() => { 
+      modal.focus(); 
+    }, 50);
+    
     const btnFechar = overlay.querySelector('#fecharRelatorio');
+    
     btnFechar.addEventListener('click', () => {
       overlay.remove();
     });
+    
     overlay.addEventListener('click', (e) => {
       if (e.target === overlay) {
         overlay.remove();
       }
     });
+    
     overlay.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         overlay.remove();
       }
     });
+    
+    modal.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        overlay.remove();
+      }
+    });
+    
     modal.focus();
   });
 } 
