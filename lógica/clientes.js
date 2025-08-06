@@ -152,8 +152,9 @@ export function removerCliente() {
   requisicao.onsuccess = function(e) {
     const cliente = e.target.result;
     const temDivida = cliente.produtos?.length > 0;
+    const quantidadeDividas = cliente.produtos.length;
     const mensagem = temDivida ?
-      `ATENÇÃO: ${nomeClienteSelecionado} possui ${cliente.produtos.length} dívidas ativas!\nDeseja realmente remover?` :
+      `ATENÇÃO: ${nomeClienteSelecionado} possui ${quantidadeDividas} ${quantidadeDividas === 1 ? 'dívida ativa' : 'dívidas ativas'}!\nDeseja realmente remover?` :
       `Remover ${nomeClienteSelecionado}?`;
     
     mostrarConfirmacao(

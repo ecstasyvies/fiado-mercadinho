@@ -3,7 +3,9 @@ export const MENSAGENS = {
   clienteRemovido: 'Cliente removido com sucesso!',
   produtoAdicionado: 'Compra registrada com sucesso!',
   produtoRemovido: 'Produto removido com sucesso!',
-  divididaLiquidada: 'Dívida liquidada com sucesso!',
+  divididaLiquidada: function(quantidade) {
+    return `${quantidade === 1 ? 'Dívida' : 'Dívidas'} liquidada${quantidade === 1 ? '' : 's'} com sucesso!`;
+  },
   backupExportado: 'Backup exportado com sucesso!',
   dadosImportados: 'Dados importados com sucesso!',
   erroGeral: 'Erro na operação',

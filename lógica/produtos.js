@@ -199,9 +199,10 @@ export function liquidarDivida() {
       return;
     }
     
+    const quantidadeDividas = cliente.produtos.length;
     mostrarConfirmacao(
       'Liquidar Dívida',
-      `Tem certeza que deseja liquidar TODOS os ${cliente.produtos.length} débitos de ${nomeClienteSelecionado}?\nEsta ação não pode ser desfeita.`,
+      `Tem certeza que deseja liquidar ${quantidadeDividas === 1 ? 'a dívida' : `TODOS os ${quantidadeDividas} débitos`} de ${nomeClienteSelecionado}?\nEsta ação não pode ser desfeita.`,
       'warning',
       () => {
         setLoading();
@@ -218,7 +219,8 @@ export function liquidarDivida() {
           
           requisicaoAtualizar.onsuccess = function() {
             listarProdutos(idClienteSelecionado);
-            mostrarNotificacao(MENSAGENS.divididaLiquidada, 'sucesso');
+            const quantidadeDividas = cliente.produtos.length;
+            mostrarNotificacao(MENSAGENS.divididaLiquidada(quantidadeDividas), 'sucesso');
             resetButton();
           };
           
