@@ -23,20 +23,23 @@
 - **JavaScript (ES6)**: Lógica principal do sistema
 - **HTML5 Semântico**: Estrutura acessível e organizada
 - **CSS3 Moderno**: Uso de variáveis, Flexbox e Grid
-- **PWA-ready**: Estrutura compatível com instalação como aplicativo
 
 ---
 
 ## 💾 Como Usar
 
-1. Baixe ou clone o repositório
-2. Abra o arquivo `index.html` em um navegador moderno
-3. Use as funções diretamente na interface:
+Para utilizar o sistema:
+1. Faça o download do repositório e extraia os arquivos
+2. Abra a pasta extraída em um editor de código (como Visual Studio Code)
+3. Para desenvolvimento e testes, utilize a estrutura completa do projeto
+4. Nota: Não é recomendado executar o arquivo index.html isoladamente
 
-   - **Adicionar cliente** → Digite o nome e clique em "Adicionar"
-   - **Registrar fiado** → Escolha cliente, produto e valor
-   - **Liquidar dívida** → Clique no botão correspondente
-   - **Exportar dados** → Botão na seção de clientes
+Use as funções diretamente na interface:
+
+- **Adicionar cliente** → Digite o nome e clique em "Adicionar"
+- **Registrar fiado** → Escolha cliente, produto e valor
+- **Liquidar dívida** → Clique no botão correspondente
+- **Exportar dados** → Botão na seção de clientes
 
 ---
 
@@ -70,7 +73,7 @@
 
 ---
 
-## ✅ Melhorias Realizadas
+## ✅ Histórico de Melhorias do Projeto
 
 - Importação de dados JSON com validação e segurança
 - Proteção por senha local (opcional)
@@ -82,13 +85,10 @@
 
 ## ⚠️ Licença
 
-Este projeto está licenciado sob a [Creative Commons BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).  
-**Uso não comercial apenas**. Modificações e redistribuições não são permitidas sem autorização.  
-Todos os direitos reservados à autora original.
+Este projeto está licenciado sob a [Creative Commons BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/). **Uso não comercial apenas**. Modificações e redistribuições não são permitidas sem autorização. Todos os direitos reservados à autora original.
 
 ---
 
 ## 🤝 Contribuições
 
-Pull requests são bem-vindos **somente para correções e sugestões que respeitem a proposta leve e funcional do projeto**.  
-Relate bugs ou envie feedback por mensagens diretas.
+Pull requests são bem-vindos **somente para correções e sugestões que respeitem a proposta leve e funcional do projeto**. Relate bugs ou envie feedback por mensagens diretas.
