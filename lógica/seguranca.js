@@ -2,7 +2,6 @@ import { mostrarNotificacao, mostrarConfirmacao } from './interface.js';
 
 const CHAVE_SENHA = 'fiados_senha_hash';
 const CHAVE_SENHA_ATIVA = 'fiados_senha_ativa';
-const SENHA_PADRAO = '1234'; // Senha padrão simples
 
 // Função para criar hash simples da senha
 function criarHash(senha) {
@@ -34,7 +33,8 @@ export function configurarSenha(senha) {
 export function verificarSenha(senha) {
   const hashArmazenado = localStorage.getItem(CHAVE_SENHA);
   if (!hashArmazenado) {
-    return senha === SENHA_PADRAO;
+    // Sem senha configurada, não há comparação possível
+    return false;
   }
   const hashDigitado = criarHash(senha);
   return hashDigitado === hashArmazenado;

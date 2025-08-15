@@ -29,7 +29,7 @@
 ## 💾 Como Usar
 
 Para utilizar o sistema:
-1. Faça o download do repositório e extraia os arquivos
+1. Faça o download do repositório em formato ZIP e extraia os arquivos
 2. Abra a pasta extraída em um editor de código (como Visual Studio Code)
 3. Para desenvolvimento e testes, utilize a estrutura completa do projeto
 4. Nota: Não é recomendado executar o arquivo index.html isoladamente

@@ -39,7 +39,7 @@ export function mostrarConfiguracoes() {
         <div style="font-size: 0.8rem; color: #adb5bd;">
           ${senhaConfigurada() ? 
             'O sistema está protegido por senha. Clique em "Remover" para desativar.' :
-            'O sistema não está protegido por senha. Clique em "Ativar" para configurar.'
+            'O sistema não está protegido por senha. Clique em "Ativar" para configurar. Ao ativar, anote ou memorize a senha escolhida — sem ela não será possível acessar o sistema.'
           }
         </div>
       </div>
