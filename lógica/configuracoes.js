@@ -1,6 +1,27 @@
+/**
+ * Módulo de Configurações do Sistema
+ * 
+ * Este módulo gerencia as configurações do sistema, incluindo:
+ * - Interface de configurações gerais
+ * - Sistema de proteção por senha
+ * - Modais de configuração com acessibilidade
+ * 
+ * Utiliza os módulos de segurança e interface para funcionalidades
+ * de proteção e elementos visuais respectivamente.
+ */
+
 import { senhaConfigurada, configurarSenha, removerSenha } from './seguranca.js';
 import { mostrarNotificacao, mostrarConfirmacao } from './interface.js';
 
+/**
+ * Exibe o modal de configurações do sistema
+ * 
+ * Cria uma interface modal acessível que permite:
+ * - Visualizar o estado atual da proteção por senha
+ * - Ativar ou remover a proteção por senha
+ * - Navegação por teclado (Tab e Esc)
+ * - Suporte a leitores de tela através de atributos ARIA
+ */
 export function mostrarConfiguracoes() {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay-escuro';
@@ -91,6 +112,18 @@ export function mostrarConfiguracoes() {
   modal.focus();
 }
 
+/**
+ * Exibe o modal de configuração de senha
+ * 
+ * Interface para configuração de nova senha com:
+ * - Validação de senha (mínimo 4 caracteres)
+ * - Confirmação de senha para evitar erros
+ * - Feedback visual de erros
+ * - Navegação otimizada por teclado
+ * - Atributos de acessibilidade
+ * 
+ * @param {HTMLElement} overlayOriginal - Referência ao modal original de configurações
+ */
 function mostrarConfigurarSenha(overlayOriginal) {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay-escuro';

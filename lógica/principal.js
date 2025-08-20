@@ -1,3 +1,10 @@
+/**
+ * principal.js
+ * Coordena a inicialização do aplicativo e gerencia eventos principais
+ * Implementa melhorias de UX como autocompleção, validações e feedback
+ * Otimizado para desktop e dispositivos móveis
+ */
+
 import { abrirBancoDados, exportarDados, importarDados, db } from './dataset.js';
 import { adicionarCliente, listarClientes, buscarClientes, removerCliente, idClienteSelecionado, nomeClienteSelecionado } from './clientes.js';
 import { adicionarProduto, listarProdutos, removerProduto, liquidarDivida } from './produtos.js';
@@ -6,6 +13,7 @@ import { mostrarPromptSenha } from './seguranca.js';
 import { mostrarRelatorio } from './relatorio.js';
 import { mostrarConfiguracoes } from './configuracoes.js';
 
+// Detecta dispositivos móveis para otimizações específicas de interface
 function isMobileDevice() {
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 }
@@ -13,6 +21,7 @@ function isMobileDevice() {
 window.removerProduto = removerProduto;
 window.listarClientes = listarClientes;
 
+// Inicialização do aplicativo após carregamento do DOM
 document.addEventListener('DOMContentLoaded', async () => {
   const acessoPermitido = await mostrarPromptSenha();
   

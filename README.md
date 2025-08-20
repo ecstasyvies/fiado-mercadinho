@@ -2,7 +2,7 @@
 
 > Um sistema simples, direto e funcional para gerenciar fiados em mercadinhos de bairro, feito com tecnologias web e totalmente offline.
 
-![Licença: CC BY-NC-ND 4.0](https://img.shields.io/badge/Licença-CC%20BY--NC--ND%204.0-orange)
+![Licença: AGPLv3](https://img.shields.io/badge/Licença-AGPLv3-blue)
 ![Status](https://img.shields.io/badge/Status-estável-brightgreen)
 ![Compatibilidade](https://img.shields.io/badge/Navegadores-Modernos-blue)
 
@@ -28,11 +28,18 @@
 
 ## 💾 Como Usar
 
-Para utilizar o sistema:
-1. Faça o download do repositório em formato ZIP e extraia os arquivos
-2. Abra a pasta extraída em um editor de código (como Visual Studio Code)
-3. Para desenvolvimento e testes, utilize a estrutura completa do projeto
-4. Nota: Não é recomendado executar o arquivo index.html isoladamente
+Para começar a usar o sistema, você tem duas opções:
+
+1. **Via Git (Recomendado)**:
+   ```bash
+   git clone https://github.com/ecstasyvies/fiado-mercadinho
+   ```
+
+2. **Download Direto**:
+   - Faça o download do repositório em formato ZIP
+   - Extraia os arquivos em uma pasta de sua preferência
+
+**Importante**: Para desenvolvimento e testes, é fundamental abrir a estrutura completa do projeto em um editor de código (como Visual Studio Code). Não execute o arquivo `index.html` isoladamente.
 
 Use as funções diretamente na interface:
 
@@ -85,7 +92,13 @@ Use as funções diretamente na interface:
 
 ## ⚠️ Licença
 
-Este projeto está licenciado sob a [Creative Commons BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/). **Uso não comercial apenas**. Modificações e redistribuições não são permitidas sem autorização. Todos os direitos reservados à autora original.
+Este projeto está licenciado sob a [GNU Affero General Public License v3.0](https://www.gnu.org/licenses/agpl-3.0.html). Você tem a liberdade de:
+- Usar o software para qualquer finalidade
+- Estudar como o software funciona e modificá-lo
+- Redistribuir cópias do software
+- Distribuir versões modificadas do software
+
+**Importante**: Se você modificar e usar este software em um servidor de rede, DEVE disponibilizar o código fonte completo para os usuários desse servidor. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
 
 ---
 

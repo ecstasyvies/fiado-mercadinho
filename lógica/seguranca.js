@@ -1,5 +1,13 @@
+/**
+ * seguranca.js
+ * Implementa sistema de proteção por senha usando localStorage
+ * Inclui hashing básico e validações de segurança
+ * Gerencia estado de proteção e acesso ao sistema
+ */
+
 import { mostrarNotificacao, mostrarConfirmacao } from './interface.js';
 
+// Chaves para armazenar hash da senha e estado de proteção
 const CHAVE_SENHA = 'fiados_senha_hash';
 const CHAVE_SENHA_ATIVA = 'fiados_senha_ativa';
 
@@ -46,6 +54,9 @@ export function removerSenha() {
   mostrarNotificacao('Proteção por senha removida', 'sucesso');
 }
 
+// Exibe prompt de senha acessível com dois modos:
+// 1. Configuração inicial da senha
+// 2. Verificação de acesso ao sistema
 export function mostrarPromptSenha() {
   return new Promise((resolve) => {
 
