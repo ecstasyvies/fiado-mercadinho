@@ -1,8 +1,17 @@
+/**
+ * dataset.js
+ * Gerencia o armazenamento local com IndexedDB
+ * Implementa funções de importação/exportação de dados
+ * Inclui validações robustas para garantir integridade dos dados
+ */
+
 import { listarClientes } from './clientes.js';
 import { mostrarNotificacao, mostrarConfirmacao, MENSAGENS } from './interface.js';
 
 let db;
 
+// Inicializa o banco de dados local com versão 4
+// Cria store 'clientes' com índice por nome se não existir
 export function abrirBancoDados() {
   const requisicao = indexedDB.open('mercadinhoDB', 4);
   
@@ -24,6 +33,8 @@ export function abrirBancoDados() {
   };
 }
 
+// Valida estrutura dos dados importados para evitar corrupção do banco
+// Checa tipos, valores obrigatórios e formatos em todos os níveis
 function validarEstruturaDados(dados) {
   if (!Array.isArray(dados)) {
     throw new Error('Formato inválido: dados devem ser um array');
@@ -66,6 +77,8 @@ function validarEstruturaDados(dados) {
   return true;
 }
 
+// Importa dados de arquivo JSON com validação e feedback
+// Substitui dados existentes após confirmação do usuário
 export function importarDados() {
   const input = document.createElement('input');
   input.type = 'file';
@@ -154,6 +167,8 @@ export function importarDados() {
   document.body.removeChild(input);
 }
 
+// Exporta dados do banco para arquivo JSON
+// Nome do arquivo inclui data para facilitar controle de versões
 export function exportarDados() {
   const btnBackup = document.getElementById('btnBackup');
   btnBackup.classList.add('loading');

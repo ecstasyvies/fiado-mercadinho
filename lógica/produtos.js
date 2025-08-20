@@ -1,7 +1,16 @@
+/**
+ * produtos.js
+ * Gerencia operações relacionadas a produtos/fiados
+ * Implementa controle de dívidas por cliente com validações
+ * Mantém consistência dos dados e fornece feedback visual
+ */
+
 import { db } from './dataset.js';
 import { mostrarNotificacao, mostrarConfirmacao, MENSAGENS, setButtonLoading } from './interface.js';
 import { idClienteSelecionado, nomeClienteSelecionado } from './clientes.js';
 
+// Adiciona novo produto à lista de dívidas do cliente
+// Inclui validações de formato, valor mínimo e sanitização
 export function adicionarProduto() {
   const elementoErro = document.getElementById('erroProduto');
   const btnAdicionar = document.getElementById('btnAdicionarProduto');
@@ -84,6 +93,8 @@ if (!btnAdicionar) {
   }
 }
 
+// Lista produtos do cliente ordenados por data mais recente
+// Calcula total da dívida e atualiza interface
 export function listarProdutos(idCliente) {
   const transacao = db.transaction(['clientes'], 'readonly');
   const armazenamento = transacao.objectStore('clientes');
@@ -164,6 +175,8 @@ export function removerProduto(index) {
   );
 }
 
+// Liquida todas as dívidas do cliente após confirmação
+// Gerencia feedback visual durante operação assíncrona
 export function liquidarDivida() {
   if (!idClienteSelecionado) {
     mostrarNotificacao('Nenhum cliente selecionado', 'alerta');

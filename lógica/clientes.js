@@ -1,3 +1,10 @@
+/**
+ * clientes.js
+ * Gerencia todas as operações relacionadas a clientes
+ * Implementa CRUD completo com validações e feedback
+ * Mantém estado do cliente selecionado para operações encadeadas
+ */
+
 import { db } from './dataset.js';
 import { mostrarNotificacao, mostrarConfirmacao, MENSAGENS } from './interface.js';
 import { listarProdutos } from './produtos.js';
@@ -5,6 +12,7 @@ import { listarProdutos } from './produtos.js';
 let idClienteSelecionado = null;
 let nomeClienteSelecionado = '';
 
+// Atualiza contador total de clientes mantendo referência DOM
 function atualizarContadorClientes() {
   const total = document.querySelectorAll('#listaClientes .item-lista').length;
   const contador = document.createElement('div');
@@ -63,6 +71,8 @@ export function adicionarCliente() {
   };
 }
 
+// Busca e filtra clientes, ordenando por nome
+// Atualiza UI com resultados e mantém seleção atual
 export function buscarClientes() {
   return new Promise((resolve) => {
     const termo = document.getElementById('buscaCliente').value.toLowerCase();
@@ -140,6 +150,8 @@ export function listarClientes() {
   buscarClientes();
 }
 
+// Remove cliente com confirmação extra caso tenha dívidas
+// Limpa estados e atualiza UI após remoção
 export function removerCliente() {
   if (!idClienteSelecionado) return;
   

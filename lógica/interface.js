@@ -1,3 +1,10 @@
+/**
+ * interface.js
+ * Gerencia elementos de interface e feedback visual
+ * Implementa sistema de notificações e diálogos de confirmação
+ * Centraliza mensagens do sistema para fácil manutenção
+ */
+
 export const MENSAGENS = {
   clienteAdicionado: 'Cliente adicionado com sucesso!',
   clienteRemovido: 'Cliente removido com sucesso!',
@@ -18,6 +25,7 @@ export const MENSAGENS = {
   senhaRemovida: 'Proteção por senha removida'
 };
 
+// Sistema de notificações temporárias com animação e auto-remoção
 export function mostrarNotificacao(mensagem, tipo = 'info') {
   const container = document.getElementById('notificacaoContainer');
   const notificacao = document.createElement('div');
@@ -64,6 +72,8 @@ export function mostrarNotificacao(mensagem, tipo = 'info') {
   setTimeout(fecharNotificacao, 5000);
 }
 
+// Diálogo de confirmação acessível e responsivo
+// Suporta diferentes tipos de alerta com ícones e cores correspondentes
 export function mostrarConfirmacao(titulo, mensagem, tipo, callbackConfirmar, callbackCancelar = () => {}) {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay-escuro';
@@ -141,6 +151,7 @@ export function mostrarConfirmacao(titulo, mensagem, tipo, callbackConfirmar, ca
   modal.focus();
 }
 
+// Gerencia estado de loading em botões preservando texto original
 export function setButtonLoading(button, isLoading) {
   const originalText = button.innerHTML;
   
