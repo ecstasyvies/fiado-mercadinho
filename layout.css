@@ -610,6 +610,18 @@ button.loading::after {
 .item-lista:focus {
   outline: 2px solid var(--primaria);
   outline-offset: 2px;
+  background: var(--cinza-claro);
+  border-left: 3px solid var(--primaria);
+}
+
+.item-lista:focus:not(.ativo) {
+  background: var(--cinza-claro);
+  border-left: 3px solid var(--primaria);
+}
+
+.item-lista.ativo:focus {
+  background: var(--primaria);
+  border-left: 3px solid var(--primaria);
 }
 
 /* Sistema de modais acessível com suporte a teclado e leitor de tela */
@@ -791,3 +803,82 @@ button:focus, input:focus, [tabindex]:focus {
 .modal-escuro::-webkit-scrollbar-thumb:hover {
   background: var(--primaria-escura);
 }
+
+
+
+.produto-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.produto-nome {
+  font-weight: 500;
+  color: var(--cinza-escuro);
+}
+
+.produto-detalhes {
+  font-size: 0.8rem;
+  color: var(--cinza-medio);
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.produto-valor {
+  text-align: right;
+  font-weight: 600;
+  color: var(--primaria);
+}
+
+
+
+.autocomplete-container {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.autocomplete-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--branco);
+  border: 1px solid var(--cinza-claro);
+  border-top: none;
+  border-radius: 0 0 var(--raio-pequeno) var(--raio-pequeno);
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 100;
+  box-shadow: var(--sombra-suave);
+}
+
+.autocomplete-suggestion {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  border-bottom: 1px solid var(--cinza-claro);
+  color: var(--cinza-escuro);
+  transition: var(--transicao);
+}
+
+.autocomplete-suggestion:last-child {
+  border-bottom: none;
+}
+
+.autocomplete-suggestion:hover,
+.autocomplete-suggestion.selected {
+  background: var(--primaria);
+  color: white;
+}
+
+.autocomplete-suggestion .suggestion-type {
+  font-size: 0.75rem;
+  color: var(--cinza-medio);
+  margin-left: 0.5rem;
+}
+
+.autocomplete-suggestion:hover .suggestion-type,
+.autocomplete-suggestion.selected .suggestion-type {
+  color: rgba(255, 255, 255, 0.8);
+}
+

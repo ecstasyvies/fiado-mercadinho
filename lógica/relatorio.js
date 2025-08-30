@@ -1,15 +1,6 @@
-/**
- * relatorio.js
- * Gera relatórios e estatísticas do sistema
- * Calcula totais, médias e rankings de clientes
- * Apresenta dados em modal interativo e responsivo
- */
-
 import { db } from './dataset.js';
 import { mostrarNotificacao } from './interface.js';
 
-// Calcula métricas principais e top 5 clientes com mais dívidas
-// Retorna Promise com objeto contendo todas as estatísticas
 export function calcularEstatisticas() {
   return new Promise((resolve) => {
     const transacao = db.transaction(['clientes'], 'readonly');
@@ -61,8 +52,6 @@ export function calcularEstatisticas() {
   });
 }
 
-// Exibe modal com relatório detalhado e interativo
-// Inclui métricas gerais e ranking dos top devedores
 export function mostrarRelatorio() {
   calcularEstatisticas().then(stats => {
     const overlay = document.createElement('div');

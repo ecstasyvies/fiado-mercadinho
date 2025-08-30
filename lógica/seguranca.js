@@ -1,33 +1,20 @@
-/**
- * seguranca.js
- * Implementa sistema de proteção por senha usando localStorage
- * Inclui hashing básico e validações de segurança
- * Gerencia estado de proteção e acesso ao sistema
- */
-
 import { mostrarNotificacao, mostrarConfirmacao } from './interface.js';
 
-// Chaves para armazenar hash da senha e estado de proteção
 const CHAVE_SENHA = 'fiados_senha_hash';
 const CHAVE_SENHA_ATIVA = 'fiados_senha_ativa';
 
-// Função para criar hash simples da senha
 function criarHash(senha) {
   return btoa(senha + '_fiados_2024');
 }
 
-// Função para verificar se a senha está configurada
 export function senhaConfigurada() {
-  // Só considera configurada se a preferência estiver ativa
   return localStorage.getItem(CHAVE_SENHA_ATIVA) !== 'false' && localStorage.getItem(CHAVE_SENHA) !== null;
 }
 
-// Função para saber se a senha está ativa (preferência do usuário)
 export function senhaAtiva() {
   return localStorage.getItem(CHAVE_SENHA_ATIVA) !== 'false';
 }
 
-// Função para configurar senha
 export function configurarSenha(senha) {
   if (!senha || senha.length < 4) {
     throw new Error('Senha deve ter pelo menos 4 caracteres');
@@ -41,7 +28,6 @@ export function configurarSenha(senha) {
 export function verificarSenha(senha) {
   const hashArmazenado = localStorage.getItem(CHAVE_SENHA);
   if (!hashArmazenado) {
-    // Sem senha configurada, não há comparação possível
     return false;
   }
   const hashDigitado = criarHash(senha);
@@ -54,9 +40,6 @@ export function removerSenha() {
   mostrarNotificacao('Proteção por senha removida', 'sucesso');
 }
 
-// Exibe prompt de senha acessível com dois modos:
-// 1. Configuração inicial da senha
-// 2. Verificação de acesso ao sistema
 export function mostrarPromptSenha() {
   return new Promise((resolve) => {
 

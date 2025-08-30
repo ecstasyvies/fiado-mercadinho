@@ -12,6 +12,8 @@
 - Cadastro e gerenciamento de clientes
 - Registro de produtos fiados com valores individuais
 - Cálculo automático do total das dívidas
+- Sistema de pagamentos parciais para dívidas totais
+- Autocompletar para nomes de clientes e produtos
 - Busca rápida por nome de cliente
 - Exportação e importação de dados para backup
 - Interface responsiva e leve, otimizada para dispositivos móveis
@@ -45,6 +47,7 @@ Use as funções diretamente na interface:
 
 - **Adicionar cliente** → Digite o nome e clique em "Adicionar"
 - **Registrar fiado** → Escolha cliente, produto e valor
+- **Pagamento parcial** → Registre pagamentos parciais da dívida total
 - **Liquidar dívida** → Clique no botão correspondente
 - **Exportar dados** → Botão na seção de clientes
 
@@ -82,6 +85,8 @@ Use as funções diretamente na interface:
 
 ## ✅ Histórico de Melhorias do Projeto
 
+- Sistema de pagamentos parciais para dívidas totais
+- Autocompletar para clientes e produtos
 - Importação de dados JSON com validação e segurança
 - Proteção por senha local (opcional)
 - Relatório de fiados com estatísticas e top clientes

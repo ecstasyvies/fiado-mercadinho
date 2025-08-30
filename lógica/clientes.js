@@ -1,10 +1,3 @@
-/**
- * clientes.js
- * Gerencia todas as operações relacionadas a clientes
- * Implementa CRUD completo com validações e feedback
- * Mantém estado do cliente selecionado para operações encadeadas
- */
-
 import { db } from './dataset.js';
 import { mostrarNotificacao, mostrarConfirmacao, MENSAGENS } from './interface.js';
 import { listarProdutos } from './produtos.js';
@@ -12,7 +5,6 @@ import { listarProdutos } from './produtos.js';
 let idClienteSelecionado = null;
 let nomeClienteSelecionado = '';
 
-// Atualiza contador total de clientes mantendo referência DOM
 function atualizarContadorClientes() {
   const total = document.querySelectorAll('#listaClientes .item-lista').length;
   const contador = document.createElement('div');
@@ -71,8 +63,6 @@ export function adicionarCliente() {
   };
 }
 
-// Busca e filtra clientes, ordenando por nome
-// Atualiza UI com resultados e mantém seleção atual
 export function buscarClientes() {
   return new Promise((resolve) => {
     const termo = document.getElementById('buscaCliente').value.toLowerCase();
@@ -112,7 +102,11 @@ export function buscarClientes() {
           <span>${cliente.nome}</span>
           <span class="etiqueta">${cliente.produtos ? cliente.produtos.length : 0} itens</span>
         `;
-        item.addEventListener('click', () => {
+        item.setAttribute('tabindex', '0');
+        item.setAttribute('role', 'button');
+        item.setAttribute('aria-label', `Selecionar cliente ${cliente.nome}`);
+        
+        const selecionarCliente = () => {
           idClienteSelecionado = cliente.id;
           nomeClienteSelecionado = cliente.nome;
           listarClientes();
@@ -130,6 +124,32 @@ export function buscarClientes() {
             setTimeout(() => {
               document.getElementById('nomeProduto').focus();
             }, 800);
+          }
+        };
+        
+        item.addEventListener('click', selecionarCliente);
+        item.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            selecionarCliente();
+          } else if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            const nextItem = item.nextElementSibling;
+            if (nextItem && nextItem.classList.contains('item-lista')) {
+              nextItem.focus();
+            }
+          } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            const prevItem = item.previousElementSibling;
+            if (prevItem && prevItem.classList.contains('item-lista')) {
+              prevItem.focus();
+            }
+          } else if (e.key === 'Tab' && !e.shiftKey) {
+            const nextItem = item.nextElementSibling;
+            if (!nextItem || !nextItem.classList.contains('item-lista')) {
+              e.preventDefault();
+              document.getElementById('nomeProduto').focus();
+            }
           }
         });
         lista.appendChild(item);
@@ -150,8 +170,6 @@ export function listarClientes() {
   buscarClientes();
 }
 
-// Remove cliente com confirmação extra caso tenha dívidas
-// Limpa estados e atualiza UI após remoção
 export function removerCliente() {
   if (!idClienteSelecionado) return;
   
