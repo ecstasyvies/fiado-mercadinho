@@ -1,8 +1,4 @@
-/* 
- * Sistema de tematização escuro usando CSS variables 
- * Paleta de cores otimizada para alto contraste e acessibilidade
- * Todas as cores têm relação de contraste adequada para WCAG 2.1
- */
+
 :root {
   --primaria: #4361ee;
   --primaria-escura: #3a56d4;
@@ -24,7 +20,7 @@
   --transicao: all 0.2s ease;
 }
 
-/* Reset e configurações base */
+
 * {
   margin: 0;
   padding: 0;
@@ -42,7 +38,7 @@ body {
   position: relative;
 }
 
-/* Layout responsivo em grid para cards lado a lado em telas grandes */
+
 .conteiner {
   max-width: 1200px;
   margin: 0 auto;
@@ -207,7 +203,7 @@ button.btn-alerta:hover,
   list-style: none;
 }
 
-/* Lista interativa com feedback visual e indicadores de estado */
+
 .item-lista {
   display: flex;
   justify-content: space-between;
@@ -356,7 +352,7 @@ button.btn-alerta:hover,
   background: var(--erro);
 }
 
-/* Sistema de notificações flutuantes com animações suaves */
+
 .notificacao-container {
   position: fixed;
   top: 20px;
@@ -465,7 +461,7 @@ button.btn-alerta:hover,
   border-radius: 3px;
 }
 
-/* Adaptações para dispositivos móveis e telas menores */
+
 @media (max-width: 768px) {
   body {
     padding: 1.5rem 1rem;
@@ -498,7 +494,7 @@ button.btn-alerta:hover,
   }
 }
 
-/* Feedback visual para ações assíncronas com animação de loading */
+
 button.loading {
   position: relative;
   color: transparent !important;
@@ -624,7 +620,7 @@ button.loading::after {
   border-left: 3px solid var(--primaria);
 }
 
-/* Sistema de modais acessível com suporte a teclado e leitor de tela */
+
 .modal-overlay-escuro {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;

@@ -171,6 +171,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (primeiroCliente) {
           primeiroCliente.focus();
         }
+        
+        // Limpar campo de busca e focar no campo de adição de produtos
+        document.getElementById('buscaCliente').value = '';
+        setTimeout(() => {
+          document.getElementById('nomeProduto').focus();
+        }, 100);
       });
     }
   });
@@ -196,6 +202,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         view: window
       });
       document.getElementById('btnAdicionarProduto').dispatchEvent(clickEvent);
+      
+      // Após adicionar o produto, focar no campo nome do próximo produto
+      setTimeout(() => {
+        document.getElementById('nomeProduto').focus();
+      }, 100);
     }
   });
 
