@@ -17,6 +17,9 @@
 - Busca rápida por nome de cliente
 - Exportação e importação de dados para backup
 - Interface responsiva e leve, otimizada para dispositivos móveis
+- Navegação completa por teclado com acessibilidade AAA
+- Proteção por senha local (opcional)
+- Relatórios de fiados com estatísticas detalhadas
 
 ---
 
@@ -57,13 +60,30 @@ Use as funções diretamente na interface:
 
 | Arquivo         | Função                                      |
 |-----------------|---------------------------------------------|
-| `index.html`| Interface principal e entrada do sistema    |
+| `index.html`    | Interface principal e entrada do sistema    |
 | `principal.js`  | Coordenação geral e escuta de eventos       |
 | `clientes.js`   | Gerenciamento de clientes                   |
 | `produtos.js`   | Registro e controle de fiados               |
 | `dataset.js`    | Configuração e operação do IndexedDB        |
 | `interface.js`  | Elementos visuais e notificações            |
+| `seguranca.js`  | Sistema de proteção por senha               |
+| `configuracoes.js` | Interface de configurações do sistema    |
+| `relatorio.js`  | Geração de relatórios e estatísticas        |
+| `acessibilidade.js` | Módulo de acessibilidade e navegação    |
 | `layout.css`    | Estilização completa da interface           |
+
+---
+
+## ♿ Acessibilidade
+
+O sistema foi desenvolvido seguindo as diretrizes WCAG 2.1 AAA para máxima acessibilidade:
+
+- **Navegação por teclado completa**: Todos os elementos são acessíveis via Tab/Shift+Tab
+- **Contraste AAA**: Cores otimizadas para contraste 4.5:1+ em todos os elementos
+- **Foco inteligente**: Navegação contextual que direciona o foco automaticamente
+- **Atributos ARIA**: Elementos semânticos com labels e descrições adequadas
+- **Suporte a leitores de tela**: Estrutura HTML semântica e aria-live regions
+- **Navegação fluída**: Enter/Espaço para ativação, setas para navegação em listas
 
 ---
 
@@ -92,6 +112,10 @@ Use as funções diretamente na interface:
 - Relatório de fiados com estatísticas e top clientes
 - Interface escura, acessível e responsiva
 - Modais e botões com contraste e acessibilidade aprimorados
+- Navegação completa por teclado com foco inteligente
+- Conformidade AAA de contraste de cores
+- Arquitetura modular com separação clara de responsabilidades
+- Código otimizado com 'use strict' e eliminação de redundâncias
 
 ---
 
