@@ -13,8 +13,8 @@
 <body>
   <div class="notificacao-container" id="notificacaoContainer" aria-live="polite"></div>
   
-  <header style="text-align: right; margin-bottom: 1rem;">
-    <button id="btnConfiguracoes" class="btn-alerta" style="width: auto; padding: 0.5rem 1rem; font-size: 0.9rem;" aria-label="Configurações do sistema">
+  <header class="header-configuracoes">
+    <button id="btnConfiguracoes" class="btn-alerta btn-configuracoes" aria-label="Configurações do sistema">
       <i class="fas fa-cog" aria-hidden="true"></i> Configurações
     </button>
   </header>
@@ -43,7 +43,7 @@
         <li class="sem-registros">Nenhum cliente cadastrado</li>
       </ul>
       
-      <div class="acoes-backup" style="margin-top: 1rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+      <div class="acoes-backup">
         <button id="btnBackup" class="btn-alerta" aria-label="Exportar dados dos clientes">
           <i class="fas fa-file-export" aria-hidden="true"></i> Exportar Dados
         </button>
@@ -59,7 +59,7 @@
     <section class="cartao" aria-labelledby="registroCompras">
       <h2 id="registroCompras"><i class="fas fa-shopping-basket icone-titulo" aria-hidden="true"></i>Registro de Compras</h2>
       
-      <div class="status-cliente" id="statusCliente" style="display: none;" aria-live="polite">
+      <div class="status-cliente status-cliente-oculto" id="statusCliente" aria-live="polite">
         <span class="bolinha" aria-hidden="true"></span>
         <span id="nomeClienteSelecionado">Cliente selecionado</span>
       </div>
@@ -83,7 +83,7 @@
       </ul>
       <div id="totalCompra" class="total" aria-live="polite">Total: <span class="total-valor">R$ 0,00</span></div>
       
-      <div class="acoes-cliente" id="acoesCliente" style="display: none;">
+      <div class="acoes-cliente acoes-cliente-oculto" id="acoesCliente">
         <button id="btnPagamentoParcial" class="btn-alerta" aria-label="Registrar pagamento parcial">
           <i class="fas fa-money-bill-wave btn-icone" aria-hidden="true"></i>Pagamento Parcial
         </button>
