@@ -47,9 +47,9 @@ export function adicionarCliente() {
   
   const requisicao = armazenamento.add(cliente);
   
-  requisicao.onsuccess = function() {
+  requisicao.onsuccess = async function() {
     inputNome.value = '';
-    listarClientes();
+    await listarClientes();
     document.getElementById('buscaCliente').value = '';
     mostrarNotificacao(MENSAGENS.clienteAdicionado, 'sucesso');
     btnAdicionar.classList.remove('loading');
@@ -106,10 +106,10 @@ export function buscarClientes() {
         item.setAttribute('role', 'button');
         item.setAttribute('aria-label', `Selecionar cliente ${cliente.nome}`);
         
-        const selecionarCliente = () => {
+        const selecionarCliente = async () => {
           idClienteSelecionado = cliente.id;
           nomeClienteSelecionado = cliente.nome;
-          listarClientes();
+          await listarClientes();
           listarProdutos(cliente.id);
           document.getElementById('acoesCliente').style.display = 'flex';
           document.getElementById('statusCliente').style.display = 'flex';
@@ -166,8 +166,8 @@ export function buscarClientes() {
   });
 }
 
-export function listarClientes() {
-  buscarClientes();
+export async function listarClientes() {
+  await buscarClientes();
 }
 
 export function removerCliente() {
@@ -196,12 +196,12 @@ export function removerCliente() {
         const armazenamento = transacao.objectStore('clientes');
         const requisicao = armazenamento.delete(idClienteSelecionado);
         
-        requisicao.onsuccess = function() {
+        requisicao.onsuccess = async function() {
           idClienteSelecionado = null;
           nomeClienteSelecionado = '';
           document.getElementById('acoesCliente').style.display = 'none';
           document.getElementById('statusCliente').style.display = 'none';
-          listarClientes();
+          await listarClientes();
           document.getElementById('listaProdutos').innerHTML = '<li class="sem-registros">Selecione um cliente para ver as compras</li>';
           document.getElementById('totalCompra').innerHTML = 'Total: <span class="total-valor">R$ 0,00</span>';
           mostrarNotificacao(MENSAGENS.clienteRemovido, 'sucesso');

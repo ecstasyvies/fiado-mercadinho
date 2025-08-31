@@ -152,7 +152,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('btnRemoverCliente').addEventListener('click', removerCliente);
   document.getElementById('btnPagamentoParcial').addEventListener('click', registrarPagamentoParcial);
   
-  document.getElementById('buscaCliente').addEventListener('input', buscarClientes);
+  document.getElementById('buscaCliente').addEventListener('input', async () => {
+    await buscarClientes();
+  });
   
   document.getElementById('buscaCliente').addEventListener('keydown', (e) => {
     if (e.key === 'Tab' && !e.shiftKey) {
