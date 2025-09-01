@@ -1,3 +1,5 @@
+'use strict';
+
 import { db } from './dataset.js';
 import { mostrarNotificacao } from './interface.js';
 
@@ -55,7 +57,7 @@ export function calcularEstatisticas() {
 export function mostrarRelatorio() {
   calcularEstatisticas().then(stats => {
     const overlay = document.createElement('div');
-    overlay.className = 'modal-overlay-escuro';
+    overlay.className = 'overlay-modal-escuro';
     overlay.setAttribute('role', 'dialog');
     overlay.setAttribute('aria-modal', 'true');
     overlay.setAttribute('aria-label', 'Relatório de Fiados');
@@ -69,29 +71,29 @@ export function mostrarRelatorio() {
       <div style="text-align: center; margin-bottom: 2rem;">
         <i class="fas fa-chart-bar modal-icone" style="color: var(--primaria);"></i>
         <h3 class="modal-titulo">Relatório de Fiados</h3>
-        <p style="color: #adb5bd;">Resumo geral dos dados do sistema</p>
+        <p style="color: var(--cinza-claro-azulado);">Resumo geral dos dados do sistema</p>
       </div>
       <div class="modal-estatisticas" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
         <div style="background: var(--clara); padding: 1rem; border-radius: var(--raio-pequeno); text-align: center;">
-          <div style="font-size: 2rem; font-weight: bold; color: var(--primaria);">R$ ${stats.totalDividas.toFixed(2)}</div>
-          <div style="color: #adb5bd; font-size: 0.9rem;">Total em Fiados</div>
+          <div style="font-size: 2rem; font-weight: bold; color: var(--valor-monetario); text-shadow: 0 0 1px rgba(0, 0, 0, 0.3);">R$ ${stats.totalDividas.toFixed(2)}</div>
+          <div style="color: var(--cinza-claro-azulado); font-size: 0.9rem;">Total em Fiados</div>
         </div>
         <div style="background: var(--clara); padding: 1rem; border-radius: var(--raio-pequeno); text-align: center;">
           <div style="font-size: 2rem; font-weight: bold; color: var(--sucesso);">${stats.totalClientes}</div>
-          <div style="color: #adb5bd; font-size: 0.9rem;">Total de Clientes</div>
+          <div style="color: var(--cinza-claro-azulado); font-size: 0.9rem;">Total de Clientes</div>
         </div>
         <div style="background: var(--clara); padding: 1rem; border-radius: var(--raio-pequeno); text-align: center;">
           <div style="font-size: 2rem; font-weight: bold; color: var(--alerta);">${stats.clientesComDivida}</div>
-          <div style="color: #adb5bd; font-size: 0.9rem;">Com Dívidas</div>
+          <div style="color: var(--cinza-claro-azulado); font-size: 0.9rem;">Com Dívidas</div>
         </div>
         <div style="background: var(--clara); padding: 1rem; border-radius: var(--raio-pequeno); text-align: center;">
           <div style="font-size: 2rem; font-weight: bold; color: var(--erro);">${stats.totalProdutos}</div>
-          <div style="color: #adb5bd; font-size: 0.9rem;">Itens Fiados</div>
+          <div style="color: var(--cinza-claro-azulado); font-size: 0.9rem;">Itens Fiados</div>
         </div>
       </div>
       ${stats.topClientes.length > 0 ? `
         <div style="margin-bottom: 1rem;">
-          <h4 style="color: var(--escura); margin-bottom: 1rem;">Top 5 Clientes com Mais Itens</h4>
+          <h4 style="color: #ffffff; margin-bottom: 1rem;">Top 5 Clientes com Mais Itens</h4>
           <div style="background: var(--clara); border-radius: var(--raio-pequeno); overflow: hidden;">
             ${stats.topClientes.map((cliente, index) => {
               const totalCliente = cliente.produtos.reduce((sum, produto) => sum + Number(produto.preco), 0);
@@ -148,4 +150,4 @@ export function mostrarRelatorio() {
     
     modal.focus();
   });
-} 
+}

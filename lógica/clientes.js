@@ -1,3 +1,5 @@
+'use strict';
+
 import { db } from './dataset.js';
 import { mostrarNotificacao, mostrarConfirmacao, MENSAGENS } from './interface.js';
 import { listarProdutos } from './produtos.js';
@@ -86,6 +88,18 @@ export function buscarClientes() {
         clientes.filter(cliente => cliente.nome.toLowerCase().includes(termo)) :
         clientes;
       
+      if (termo) {
+        const clienteSelecionadoEstaNaLista = clientesFiltrados.some(c => c.id === idClienteSelecionado);
+        if (!clienteSelecionadoEstaNaLista) {
+          idClienteSelecionado = null;
+          nomeClienteSelecionado = '';
+          document.getElementById('acoesCliente').className = 'acoes-cliente acoes-cliente-oculto';
+          document.getElementById('statusCliente').className = 'status-cliente status-cliente-oculto';
+          document.getElementById('listaProdutos').innerHTML = '<li class="sem-registros">Selecione um cliente para ver as compras</li>';
+          document.getElementById('totalCompra').innerHTML = 'Total: <span class="total-valor">R$ 0,00</span>';
+        }
+      }
+      
       clientesFiltrados.sort((a, b) => a.nome.localeCompare(b.nome));
       
       if (clientesFiltrados.length === 0) {
@@ -105,26 +119,20 @@ export function buscarClientes() {
         item.setAttribute('tabindex', '0');
         item.setAttribute('role', 'button');
         item.setAttribute('aria-label', `Selecionar cliente ${cliente.nome}`);
+        item.setAttribute('data-cliente-id', cliente.id);
         
         const selecionarCliente = () => {
           idClienteSelecionado = cliente.id;
           nomeClienteSelecionado = cliente.nome;
           listarClientes();
           listarProdutos(cliente.id);
-          document.getElementById('acoesCliente').style.display = 'flex';
-          document.getElementById('statusCliente').style.display = 'flex';
+          document.getElementById('acoesCliente').className = 'acoes-cliente acoes-cliente-visivel';
+          document.getElementById('statusCliente').className = 'status-cliente status-cliente-visivel';
           document.getElementById('nomeClienteSelecionado').textContent = cliente.nome;
           
-          if (window.innerWidth <= 768) {
-            const secaoProdutos = document.querySelector('.cartao:nth-child(2)');
-            secaoProdutos.scrollIntoView({
-              behavior: 'smooth',
-              block: 'start'
-            });
-            setTimeout(() => {
-              document.getElementById('nomeProduto').focus();
-            }, 800);
-          }
+          setTimeout(() => {
+            document.getElementById('nomeProduto').focus();
+          }, 100);
         };
         
         item.addEventListener('click', selecionarCliente);
@@ -199,8 +207,8 @@ export function removerCliente() {
         requisicao.onsuccess = function() {
           idClienteSelecionado = null;
           nomeClienteSelecionado = '';
-          document.getElementById('acoesCliente').style.display = 'none';
-          document.getElementById('statusCliente').style.display = 'none';
+          document.getElementById('acoesCliente').className = 'acoes-cliente acoes-cliente-oculto';
+          document.getElementById('statusCliente').className = 'status-cliente status-cliente-oculto';
           listarClientes();
           document.getElementById('listaProdutos').innerHTML = '<li class="sem-registros">Selecione um cliente para ver as compras</li>';
           document.getElementById('totalCompra').innerHTML = 'Total: <span class="total-valor">R$ 0,00</span>';
@@ -218,6 +226,18 @@ export function removerCliente() {
       }
     );
   };
+}
+
+export function selecionarClientePorId(clienteId, clienteNome) {
+  idClienteSelecionado = clienteId;
+  nomeClienteSelecionado = clienteNome;
+  
+  listarProdutos(clienteId);
+  document.getElementById('acoesCliente').className = 'acoes-cliente acoes-cliente-visivel';
+  document.getElementById('statusCliente').className = 'status-cliente status-cliente-visivel';
+  document.getElementById('nomeClienteSelecionado').textContent = clienteNome;
+  
+  listarClientes();
 }
 
 export { idClienteSelecionado, nomeClienteSelecionado };

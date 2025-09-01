@@ -1,3 +1,5 @@
+'use strict';
+
 import { listarClientes } from './clientes.js';
 import { mostrarNotificacao, mostrarConfirmacao, MENSAGENS } from './interface.js';
 

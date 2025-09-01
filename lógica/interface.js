@@ -1,3 +1,7 @@
+'use strict';
+
+import { configurarModalAcessibilidade } from './acessibilidade.js';
+
 export const MENSAGENS = {
   clienteAdicionado: 'Cliente adicionado com sucesso!',
   clienteRemovido: 'Cliente removido com sucesso!',
@@ -66,7 +70,7 @@ export function mostrarNotificacao(mensagem, tipo = 'info') {
 
 export function mostrarConfirmacao(titulo, mensagem, tipo, callbackConfirmar, callbackCancelar = () => {}) {
   const overlay = document.createElement('div');
-  overlay.className = 'modal-overlay-escuro';
+  overlay.className = 'overlay-modal-escuro';
   overlay.setAttribute('role', 'dialog');
   overlay.setAttribute('aria-modal', 'true');
   overlay.setAttribute('aria-label', titulo);
@@ -115,6 +119,28 @@ export function mostrarConfirmacao(titulo, mensagem, tipo, callbackConfirmar, ca
   const btnCancelar = overlay.querySelector('#confirmarCancelar');
   const btnConfirmar = overlay.querySelector('#confirmarOk');
 
+  const confinarTabulacao = (e) => {
+    if (e.key === 'Tab') {
+      const elementosFocaveis = overlay.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      const primeiroElemento = elementosFocaveis[0];
+      const ultimoElemento = elementosFocaveis[elementosFocaveis.length - 1];
+
+      if (e.shiftKey) {
+        if (document.activeElement === primeiroElemento) {
+          e.preventDefault();
+          ultimoElemento.focus();
+        }
+      } else {
+        if (document.activeElement === ultimoElemento) {
+          e.preventDefault();
+          primeiroElemento.focus();
+        }
+      }
+    }
+  };
+
   btnCancelar.addEventListener('click', () => {
     overlay.remove();
     callbackCancelar();
@@ -132,13 +158,7 @@ export function mostrarConfirmacao(titulo, mensagem, tipo, callbackConfirmar, ca
     }
   });
 
-  overlay.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      overlay.remove();
-      callbackCancelar();
-    }
-  });
-  modal.focus();
+  configurarModalAcessibilidade(overlay, modal);
 }
 
 export function setButtonLoading(button, isLoading) {

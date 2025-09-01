@@ -1,9 +1,12 @@
+'use strict';
+
 import { senhaConfigurada, configurarSenha, removerSenha } from './seguranca.js';
 import { mostrarNotificacao, mostrarConfirmacao } from './interface.js';
+import { configurarModalAcessibilidade } from './acessibilidade.js';
 
 export function mostrarConfiguracoes() {
   const overlay = document.createElement('div');
-  overlay.className = 'modal-overlay-escuro';
+  overlay.className = 'overlay-modal-escuro';
   overlay.setAttribute('role', 'dialog');
   overlay.setAttribute('aria-modal', 'true');
   overlay.setAttribute('aria-label', 'Configurações do sistema');
@@ -83,17 +86,13 @@ export function mostrarConfiguracoes() {
       overlay.remove();
     }
   });
-  overlay.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      overlay.remove();
-    }
-  });
-  modal.focus();
+  
+  configurarModalAcessibilidade(overlay, modal);
 }
 
 function mostrarConfigurarSenha(overlayOriginal) {
   const overlay = document.createElement('div');
-  overlay.className = 'modal-overlay-escuro';
+  overlay.className = 'overlay-modal-escuro';
   overlay.setAttribute('role', 'dialog');
   overlay.setAttribute('aria-modal', 'true');
   overlay.setAttribute('aria-label', 'Configurar senha');
@@ -183,10 +182,6 @@ function mostrarConfigurarSenha(overlayOriginal) {
       overlay.remove();
     }
   });
-  overlay.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      overlay.remove();
-    }
-  });
-  modal.focus();
-} 
+  
+  configurarModalAcessibilidade(overlay, modal);
+}

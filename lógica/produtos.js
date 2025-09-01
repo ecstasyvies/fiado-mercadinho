@@ -1,6 +1,9 @@
+'use strict';
+
 import { db } from './dataset.js';
 import { mostrarNotificacao, mostrarConfirmacao, MENSAGENS, setButtonLoading } from './interface.js';
 import { idClienteSelecionado, nomeClienteSelecionado } from './clientes.js';
+import { configurarModalAcessibilidade } from './acessibilidade.js';
 
 export function adicionarProduto() {
   const elementoErro = document.getElementById('erroProduto');
@@ -208,7 +211,7 @@ export function registrarPagamentoParcial() {
     }
     
     const overlay = document.createElement('div');
-    overlay.className = 'modal-overlay-escuro';
+    overlay.className = 'overlay-modal-escuro';
     overlay.setAttribute('role', 'dialog');
     overlay.setAttribute('aria-modal', 'true');
     overlay.setAttribute('aria-label', 'Pagamento Parcial');
@@ -279,24 +282,42 @@ export function registrarPagamentoParcial() {
       requisicao.onsuccess = function(e) {
         const cliente = e.target.result;
         
-        cliente.valorPago = (cliente.valorPago || 0) + valor;
-        cliente.pagamentos = cliente.pagamentos || [];
-        cliente.pagamentos.push({
-          valor: valor,
-          data: new Date().toISOString()
-        });
-        
-        const requisicaoAtualizar = armazenamento.put(cliente);
-        
-        requisicaoAtualizar.onsuccess = function() {
-          overlay.remove();
-          listarProdutos(idClienteSelecionado);
-          mostrarNotificacao(`Pagamento de R$ ${valor.toFixed(2)} registrado com sucesso!`, 'sucesso');
-        };
-        
-        requisicaoAtualizar.onerror = function() {
-          mostrarNotificacao('Erro ao registrar pagamento', 'erro');
-        };
+        if (valor >= valorPendente) {
+          cliente.produtos = [];
+          cliente.valorPago = 0;
+          cliente.pagamentos = [];
+          
+          const requisicaoAtualizar = armazenamento.put(cliente);
+          
+          requisicaoAtualizar.onsuccess = function() {
+            overlay.remove();
+            listarProdutos(idClienteSelecionado);
+            mostrarNotificacao(`Dívida liquidada com sucesso! Valor pago: R$ ${valor.toFixed(2)}`, 'sucesso');
+          };
+          
+          requisicaoAtualizar.onerror = function() {
+            mostrarNotificacao('Erro ao liquidar dívida', 'erro');
+          };
+        } else {
+          cliente.valorPago = (cliente.valorPago || 0) + valor;
+          cliente.pagamentos = cliente.pagamentos || [];
+          cliente.pagamentos.push({
+            valor: valor,
+            data: new Date().toISOString()
+          });
+          
+          const requisicaoAtualizar = armazenamento.put(cliente);
+          
+          requisicaoAtualizar.onsuccess = function() {
+            overlay.remove();
+            listarProdutos(idClienteSelecionado);
+            mostrarNotificacao(`Pagamento de R$ ${valor.toFixed(2)} registrado com sucesso!`, 'sucesso');
+          };
+          
+          requisicaoAtualizar.onerror = function() {
+            mostrarNotificacao('Erro ao registrar pagamento', 'erro');
+          };
+        }
       };
     };
     
@@ -312,9 +333,7 @@ export function registrarPagamentoParcial() {
       if (e.target === overlay) overlay.remove();
     });
     
-    overlay.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') overlay.remove();
-    });
+    configurarModalAcessibilidade(overlay, modal);
   };
 }
 
@@ -397,4 +416,3 @@ export function liquidarDivida() {
   };
 }
 
-window.registrarPagamentoParcial = registrarPagamentoParcial;

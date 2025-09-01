@@ -1,10 +1,13 @@
+'use strict';
+
 import { abrirBancoDados, exportarDados, importarDados, db } from './dataset.js';
-import { adicionarCliente, listarClientes, buscarClientes, removerCliente, idClienteSelecionado, nomeClienteSelecionado } from './clientes.js';
+import { adicionarCliente, listarClientes, buscarClientes, removerCliente, selecionarClientePorId, idClienteSelecionado, nomeClienteSelecionado } from './clientes.js';
 import { adicionarProduto, listarProdutos, removerProduto, liquidarDivida, registrarPagamentoParcial } from './produtos.js';
 import { mostrarNotificacao, MENSAGENS } from './interface.js';
 import { mostrarPromptSenha } from './seguranca.js';
 import { mostrarRelatorio } from './relatorio.js';
 import { mostrarConfiguracoes } from './configuracoes.js';
+import { melhorarAcessibilidadeInput } from './acessibilidade.js';
 
 function isMobileDevice() {
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -38,12 +41,12 @@ function carregarSugestoes() {
 
 function criarAutocompletar(input, sugestoes, tipo) {
   const container = document.createElement('div');
-  container.className = 'autocomplete-container';
+  container.className = 'conteiner-autocompletar';
   input.parentNode.insertBefore(container, input);
   container.appendChild(input);
   
   const suggestionsDiv = document.createElement('div');
-  suggestionsDiv.className = 'autocomplete-suggestions';
+  suggestionsDiv.className = 'sugestoes-autocompletar';
   suggestionsDiv.style.display = 'none';
   container.appendChild(suggestionsDiv);
   
@@ -65,16 +68,16 @@ function criarAutocompletar(input, sugestoes, tipo) {
     }
     
     suggestionsDiv.innerHTML = filtradas.map((item, index) => `
-      <div class="autocomplete-suggestion" data-index="${index}">
+      <div class="sugestao-autocompletar" data-index="${index}">
         ${item}
-        <span class="suggestion-type">${tipo}</span>
+        <span class="tipo-sugestao">${tipo}</span>
       </div>
     `).join('');
     
     suggestionsDiv.style.display = 'block';
     selectedIndex = -1;
     
-    suggestionsDiv.querySelectorAll('.autocomplete-suggestion').forEach((suggestion, index) => {
+    suggestionsDiv.querySelectorAll('.sugestao-autocompletar').forEach((suggestion, index) => {
       suggestion.addEventListener('click', () => {
         input.value = suggestion.textContent.replace(tipo, '').trim();
         suggestionsDiv.style.display = 'none';
@@ -88,7 +91,7 @@ function criarAutocompletar(input, sugestoes, tipo) {
   });
   
   input.addEventListener('keydown', (e) => {
-    const suggestions = suggestionsDiv.querySelectorAll('.autocomplete-suggestion');
+    const suggestions = suggestionsDiv.querySelectorAll('.sugestao-autocompletar');
     
     if (e.key === 'ArrowDown') {
       e.preventDefault();
@@ -109,8 +112,8 @@ function criarAutocompletar(input, sugestoes, tipo) {
   });
   
   function updateSelection() {
-    suggestionsDiv.querySelectorAll('.autocomplete-suggestion').forEach((suggestion, index) => {
-      suggestion.classList.toggle('selected', index === selectedIndex);
+    suggestionsDiv.querySelectorAll('.sugestao-autocompletar').forEach((suggestion, index) => {
+      suggestion.classList.toggle('selecionada', index === selectedIndex);
     });
   }
   
@@ -121,13 +124,9 @@ function criarAutocompletar(input, sugestoes, tipo) {
   });
 }
 
-
-
 window.removerProduto = removerProduto;
 window.listarClientes = listarClientes;
-window.registrarPagamentoParcial = registrarPagamentoParcial;
 
-// Inicialização do aplicativo após carregamento do DOM
 document.addEventListener('DOMContentLoaded', async () => {
   const acessoPermitido = await mostrarPromptSenha();
   
@@ -152,6 +151,48 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('btnRemoverCliente').addEventListener('click', removerCliente);
   document.getElementById('btnPagamentoParcial').addEventListener('click', registrarPagamentoParcial);
   
+  document.getElementById('btnAdicionarProduto').addEventListener('keydown', (e) => {
+    if (e.key === 'Tab' && e.shiftKey) {
+      e.preventDefault();
+      document.getElementById('precoProduto').focus();
+    }
+  });
+  
+  document.getElementById('btnLiquidar').addEventListener('keydown', (e) => {
+    if (e.key === 'Tab' && e.shiftKey) {
+      e.preventDefault();
+      document.getElementById('btnAdicionarProduto').focus();
+    }
+  });
+  
+  document.getElementById('btnRemoverCliente').addEventListener('keydown', (e) => {
+    if (e.key === 'Tab' && e.shiftKey) {
+      e.preventDefault();
+      document.getElementById('btnLiquidar').focus();
+    }
+  });
+  
+  document.getElementById('btnPagamentoParcial').addEventListener('keydown', (e) => {
+    if (e.key === 'Tab' && e.shiftKey) {
+      e.preventDefault();
+      document.getElementById('btnRemoverCliente').focus();
+    }
+  });
+  
+  document.getElementById('btnAdicionarCliente').addEventListener('keydown', (e) => {
+    if (e.key === 'Tab' && e.shiftKey) {
+      e.preventDefault();
+      document.getElementById('nomeCliente').focus();
+    }
+  });
+  
+  document.getElementById('nomeCliente').addEventListener('keydown', (e) => {
+    if (e.key === 'Tab' && e.shiftKey) {
+      e.preventDefault();
+      document.getElementById('btnConfiguracoes').focus();
+    }
+  });
+  
   document.getElementById('buscaCliente').addEventListener('input', buscarClientes);
   
   document.getElementById('buscaCliente').addEventListener('keydown', (e) => {
@@ -161,23 +202,32 @@ document.addEventListener('DOMContentLoaded', async () => {
         e.preventDefault();
         primeiroCliente.focus();
       }
+    } else if (e.key === 'Tab' && e.shiftKey) {
+      e.preventDefault();
+      document.getElementById('btnAdicionarCliente').focus();
     }
   });
   document.getElementById('buscaCliente').addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      buscarClientes().then(() => {
-        const primeiroCliente = document.querySelector('#listaClientes .item-lista:not(.sem-registros)');
-        if (primeiroCliente) {
-          primeiroCliente.focus();
-        }
-        
-        // Limpar campo de busca e focar no campo de adição de produtos
-        document.getElementById('buscaCliente').value = '';
-        setTimeout(() => {
-          document.getElementById('nomeProduto').focus();
-        }, 100);
-      });
+      const termoBusca = document.getElementById('buscaCliente').value.trim();
+      
+      if (termoBusca) {
+        buscarClientes().then(() => {
+          const primeiroCliente = document.querySelector('#listaClientes .item-lista:not(.sem-registros)');
+          if (primeiroCliente) {
+            const clienteId = parseInt(primeiroCliente.getAttribute('data-cliente-id'));
+            const clienteNome = primeiroCliente.querySelector('span').textContent;
+            
+            selecionarClientePorId(clienteId, clienteNome);
+            
+            document.getElementById('buscaCliente').value = '';
+            setTimeout(() => {
+              document.getElementById('nomeProduto').focus();
+            }, 200);
+          }
+        });
+      }
     }
   });
 
@@ -203,7 +253,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
       document.getElementById('btnAdicionarProduto').dispatchEvent(clickEvent);
       
-      // Após adicionar o produto, focar no campo nome do próximo produto
       setTimeout(() => {
         document.getElementById('nomeProduto').focus();
       }, 100);
@@ -244,6 +293,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
   
+  document.getElementById('nomeProduto').addEventListener('keydown', (e) => {
+    if (e.key === 'Tab' && e.shiftKey) {
+      const ultimoCliente = document.querySelector('#listaClientes .item-lista:not(.sem-registros):last-child');
+      if (ultimoCliente) {
+        e.preventDefault();
+        ultimoCliente.focus();
+      }
+    }
+  });
+  
   document.getElementById('precoProduto').addEventListener('input', () => {
     document.getElementById('erroProduto').style.display = 'none';
   });
@@ -266,11 +325,47 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('btnRelatorio').addEventListener('click', mostrarRelatorio);
   document.getElementById('btnConfiguracoes').addEventListener('click', mostrarConfiguracoes);
   
+  document.getElementById('btnBackup').addEventListener('keydown', (e) => {
+    if (e.key === 'Tab' && e.shiftKey) {
+      const ultimoCliente = document.querySelector('#listaClientes .item-lista:not(.sem-registros):last-child');
+      if (ultimoCliente) {
+        e.preventDefault();
+        ultimoCliente.focus();
+      }
+    }
+  });
+  
+  document.getElementById('btnImportar').addEventListener('keydown', (e) => {
+    if (e.key === 'Tab' && e.shiftKey) {
+      e.preventDefault();
+      document.getElementById('btnBackup').focus();
+    }
+  });
+  
+  document.getElementById('btnRelatorio').addEventListener('keydown', (e) => {
+    if (e.key === 'Tab' && e.shiftKey) {
+      e.preventDefault();
+      document.getElementById('btnImportar').focus();
+    }
+  });
+  
+  document.getElementById('btnConfiguracoes').addEventListener('keydown', (e) => {
+    if (e.key === 'Tab' && e.shiftKey) {
+      e.preventDefault();
+      document.getElementById('btnRelatorio').focus();
+    }
+  });
+  
   abrirBancoDados();
   
   setTimeout(() => {
     carregarSugestoes();
     criarAutocompletar(document.getElementById('nomeCliente'), sugestoesClientes, 'Cliente');
     criarAutocompletar(document.getElementById('nomeProduto'), sugestoesProdutos, 'Produto');
+    
+    melhorarAcessibilidadeInput(document.getElementById('nomeCliente'), 'erroCliente');
+    melhorarAcessibilidadeInput(document.getElementById('nomeProduto'), 'erroProduto');
+    melhorarAcessibilidadeInput(document.getElementById('precoProduto'), 'erroProduto');
+    melhorarAcessibilidadeInput(document.getElementById('buscaCliente'));
   }, 1000);
 });
