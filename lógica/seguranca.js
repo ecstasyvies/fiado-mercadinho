@@ -1,4 +1,7 @@
+'use strict';
+
 import { mostrarNotificacao, mostrarConfirmacao } from './interface.js';
+import { configurarModalAcessibilidade } from './acessibilidade.js';
 
 const CHAVE_SENHA = 'fiados_senha_hash';
 const CHAVE_SENHA_ATIVA = 'fiados_senha_ativa';
@@ -48,7 +51,7 @@ export function mostrarPromptSenha() {
       return;
     }
     const overlay = document.createElement('div');
-    overlay.className = 'modal-overlay-escuro';
+    overlay.className = 'overlay-modal-escuro';
     overlay.setAttribute('role', 'dialog');
     overlay.setAttribute('aria-modal', 'true');
     overlay.setAttribute('aria-label', 'Acesso ao Sistema');
@@ -140,12 +143,6 @@ export function mostrarPromptSenha() {
         resolve(false);
       }
     });
-    overlay.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        overlay.remove();
-        resolve(false);
-      }
-    });
-    modal.focus();
+    configurarModalAcessibilidade(overlay, modal);
   });
-} 
+}
