@@ -31,20 +31,21 @@
 
 ---
 
-## 💾 Como Usar
+## 🔧 Instalação e Uso
 
-Para começar a usar o sistema, você tem duas opções:
+1. Clone o repositório usando Git:
 
-1. **Via Git (Recomendado)**:
-   ```bash
-   git clone https://github.com/ecstasyvies/fiado-mercadinho
-   ```
+	```bash
+	git clone https://github.com/ecstasyvies/fiado-mercadinho
+	```
 
-2. **Download Direto**:
-   - Faça o download do repositório em formato ZIP
-   - Extraia os arquivos em uma pasta de sua preferência
+	Ou, se preferir, faça o download em formato ZIP e extraia os arquivos.
 
-**Importante**: Para desenvolvimento e testes, é fundamental abrir a estrutura completa do projeto em um editor de código (como Visual Studio Code). Não execute o arquivo `index.html` isoladamente.
+2. Abra a pasta do projeto em um editor de código (por exemplo, Visual Studio Code).
+
+3. Para desenvolvimento e testes, utilize sempre a estrutura completa do projeto (abra a pasta inteira no editor).  
+
+> **Importante**: Para desenvolvimento e testes, é fundamental abrir a estrutura completa do projeto em um editor de código (como Visual Studio Code). Não execute o arquivo `index.html` isoladamente.
 
 Use as funções diretamente na interface:
 
