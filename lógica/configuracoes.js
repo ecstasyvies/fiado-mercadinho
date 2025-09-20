@@ -80,8 +80,9 @@ export function mostrarConfiguracoes() {
         () => {
           removerSenha();
           overlay.remove();
+          // Atualizar o conteúdo do modal original em vez de fechá-lo
           setTimeout(() => {
-            mostrarConfiguracoes();
+            atualizarConteudoModal(overlayOriginal);
           }, 1000);
         }
       );
@@ -169,9 +170,9 @@ function mostrarConfigurarSenha(overlayOriginal) {
     try {
       configurarSenha(senha);
       overlay.remove();
-      overlayOriginal.remove();
+      // Atualizar o conteúdo do modal original em vez de fechá-lo
       setTimeout(() => {
-        mostrarConfiguracoes();
+        atualizarConteudoModal(overlayOriginal);
       }, 1000);
     } catch (error) {
       mostrarErro(error.message);
@@ -206,4 +207,71 @@ function mostrarConfigurarSenha(overlayOriginal) {
   });
   
   configurarModalAcessibilidade(overlay, modal);
+}
+
+function atualizarConteudoModal(overlay) {
+  const modal = overlay.querySelector('.modal-escuro');
+  if (!modal) return;
+  
+  // Atualizar o conteúdo do modal com o status atual da senha
+  const conteudoSeguranca = `
+    <div style="margin-bottom: 2rem;">
+      <h4 style="color: var(--escura); margin-bottom: 1rem;">Segurança</h4>
+      <div style="background: var(--clara); padding: 1rem; border-radius: var(--raio-pequeno);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <div>
+            <div style="font-weight: 600; color: var(--escura);">Proteção por Senha</div>
+            <div style="font-size: 0.85rem; color: ${senhaConfigurada() ? 'var(--sucesso)' : 'var(--alerta)'};">
+              ${senhaConfigurada() ? 'Ativada' : 'Desativada'}
+            </div>
+          </div>
+          <div style="display: flex; gap: 0.5rem;">
+            ${senhaConfigurada()
+              ? '<button id="btnRemoverSenha" class="modal-botao perigo" aria-label="Remover proteção por senha">Remover</button>'
+              : '<button id="btnConfigurarSenha" class="modal-botao" aria-label="Ativar proteção por senha">Ativar</button>'
+            }
+          </div>
+        </div>
+        <div style="font-size: 0.8rem; color: #adb5bd;">
+          ${senhaConfigurada()
+            ? 'O sistema está protegido por senha. Clique em "Remover" para desativar.'
+            : 'O sistema não está protegido por senha. Clique em "Ativar" para configurar. Ao ativar, anote ou memorize a senha escolhida — sem ela não será possível acessar o sistema.'
+          }
+        </div>
+      </div>
+    </div>
+  `;
+  
+  // Substituir o conteúdo de segurança no modal
+  const containerSeguranca = modal.querySelector('div:nth-child(2)');
+  if (containerSeguranca) {
+    containerSeguranca.outerHTML = conteudoSeguranca;
+  }
+  
+  // Reconfigurar os event listeners para os novos botões
+  const btnConfigurarSenha = overlay.querySelector('#btnConfigurarSenha');
+  const btnRemoverSenha = overlay.querySelector('#btnRemoverSenha');
+  
+  if (btnConfigurarSenha) {
+    btnConfigurarSenha.addEventListener('click', () => {
+      mostrarConfigurarSenha(overlay);
+    });
+  }
+  
+  if (btnRemoverSenha) {
+    btnRemoverSenha.addEventListener('click', () => {
+      mostrarConfirmacao(
+        'Remover Proteção',
+        'Tem certeza que deseja remover a proteção por senha?\n\nO sistema ficará desprotegido.',
+        'warning',
+        () => {
+          removerSenha();
+          // Atualizar o conteúdo do modal em vez de fechá-lo
+          setTimeout(() => {
+            atualizarConteudoModal(overlay);
+          }, 1000);
+        }
+      );
+    });
+  }
 }
