@@ -10,12 +10,12 @@ export function mostrarConfiguracoes() {
   overlay.setAttribute('role', 'dialog');
   overlay.setAttribute('aria-modal', 'true');
   overlay.setAttribute('aria-label', 'Configurações do sistema');
-
+  
   const modal = document.createElement('div');
   modal.className = 'modal-escuro';
   modal.tabIndex = -1;
   modal.style.position = 'relative';
-
+  
   modal.innerHTML = `
     <div style="text-align: center; margin-bottom: 2rem;">
       <i class="fas fa-cog modal-icone" style="color: var(--primaria);"></i>
@@ -28,21 +28,21 @@ export function mostrarConfiguracoes() {
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
           <div>
             <div style="font-weight: 600; color: var(--escura);">Proteção por Senha</div>
-            <div style="font-size: 0.85rem; color: #adb5bd;">
+            <div style="font-size: 0.85rem; color: ${senhaConfigurada() ? 'var(--sucesso)' : 'var(--alerta)'};">
               ${senhaConfigurada() ? 'Ativada' : 'Desativada'}
             </div>
           </div>
           <div style="display: flex; gap: 0.5rem;">
-            ${senhaConfigurada() ? 
-              '<button id="btnRemoverSenha" class="modal-botao perigo" aria-label="Remover proteção por senha">Remover</button>' :
-              '<button id="btnConfigurarSenha" class="modal-botao" aria-label="Ativar proteção por senha">Ativar</button>'
+            ${senhaConfigurada()
+              ? '<button id="btnRemoverSenha" class="modal-botao perigo" aria-label="Remover proteção por senha">Remover</button>'
+              : '<button id="btnConfigurarSenha" class="modal-botao" aria-label="Ativar proteção por senha">Ativar</button>'
             }
           </div>
         </div>
         <div style="font-size: 0.8rem; color: #adb5bd;">
-          ${senhaConfigurada() ? 
-            'O sistema está protegido por senha. Clique em "Remover" para desativar.' :
-            'O sistema não está protegido por senha. Clique em "Ativar" para configurar. Ao ativar, anote ou memorize a senha escolhida — sem ela não será possível acessar o sistema.'
+          ${senhaConfigurada()
+            ? 'O sistema está protegido por senha. Clique em "Remover" para desativar.'
+            : 'O sistema não está protegido por senha. Clique em "Ativar" para configurar. Ao ativar, anote ou memorize a senha escolhida — sem ela não será possível acessar o sistema.'
           }
         </div>
       </div>
@@ -51,20 +51,26 @@ export function mostrarConfiguracoes() {
       <button id="fecharConfiguracoes" class="modal-botao" aria-label="Fechar configurações">Fechar</button>
     </div>
   `;
+  
   overlay.appendChild(modal);
   document.body.appendChild(overlay);
+  
   setTimeout(() => { modal.focus(); }, 50);
+  
   const btnFechar = overlay.querySelector('#fecharConfiguracoes');
   const btnConfigurarSenha = overlay.querySelector('#btnConfigurarSenha');
   const btnRemoverSenha = overlay.querySelector('#btnRemoverSenha');
+  
   btnFechar.addEventListener('click', () => {
     overlay.remove();
   });
+  
   if (btnConfigurarSenha) {
     btnConfigurarSenha.addEventListener('click', () => {
       mostrarConfigurarSenha(overlay);
     });
   }
+  
   if (btnRemoverSenha) {
     btnRemoverSenha.addEventListener('click', () => {
       mostrarConfirmacao(
@@ -81,6 +87,7 @@ export function mostrarConfiguracoes() {
       );
     });
   }
+  
   overlay.addEventListener('click', (e) => {
     if (e.target === overlay) {
       overlay.remove();
@@ -96,12 +103,12 @@ function mostrarConfigurarSenha(overlayOriginal) {
   overlay.setAttribute('role', 'dialog');
   overlay.setAttribute('aria-modal', 'true');
   overlay.setAttribute('aria-label', 'Configurar senha');
-
+  
   const modal = document.createElement('div');
   modal.className = 'modal-escuro';
   modal.tabIndex = -1;
   modal.style.position = 'relative';
-
+  
   modal.innerHTML = `
     <div style="margin-bottom: 1.5rem; text-align: center;">
       <i class="fas fa-lock modal-icone" style="color: var(--primaria);"></i>
@@ -118,26 +125,34 @@ function mostrarConfigurarSenha(overlayOriginal) {
       <button id="confirmarNovaSenha" class="modal-botao" aria-label="Configurar">Configurar</button>
     </div>
   `;
+  
   overlay.appendChild(modal);
   document.body.appendChild(overlay);
+  
   setTimeout(() => { modal.focus(); }, 50);
+  
   const inputSenha = overlay.querySelector('#novaSenha');
   const inputConfirmar = overlay.querySelector('#confirmarSenha');
   const btnCancelar = overlay.querySelector('#cancelarSenha');
   const btnConfirmar = overlay.querySelector('#confirmarNovaSenha');
   const erroSenha = overlay.querySelector('#erroSenha');
+  
   inputSenha.focus();
+  
   const limparErro = () => {
     erroSenha.style.display = 'none';
     erroSenha.textContent = '';
   };
+  
   const mostrarErro = (mensagem) => {
     erroSenha.textContent = mensagem;
     erroSenha.style.display = 'block';
   };
+  
   const configurarNovaSenha = () => {
     const senha = inputSenha.value.trim();
     const confirmacao = inputConfirmar.value.trim();
+    
     if (!senha) {
       mostrarErro('Digite uma senha');
       return;
@@ -150,6 +165,7 @@ function mostrarConfigurarSenha(overlayOriginal) {
       mostrarErro('Senhas não coincidem');
       return;
     }
+    
     try {
       configurarSenha(senha);
       overlay.remove();
@@ -161,22 +177,28 @@ function mostrarConfigurarSenha(overlayOriginal) {
       mostrarErro(error.message);
     }
   };
+  
   inputSenha.addEventListener('input', limparErro);
   inputConfirmar.addEventListener('input', limparErro);
+  
   inputSenha.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
       inputConfirmar.focus();
     }
   });
+  
   inputConfirmar.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
       configurarNovaSenha();
     }
   });
+  
   btnConfirmar.addEventListener('click', configurarNovaSenha);
+  
   btnCancelar.addEventListener('click', () => {
     overlay.remove();
   });
+  
   overlay.addEventListener('click', (e) => {
     if (e.target === overlay) {
       overlay.remove();

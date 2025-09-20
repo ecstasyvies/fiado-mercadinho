@@ -6,6 +6,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Sistema de gestão de fiados para mercadinhos">
   <title>Fiados do Mercadinho</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="layout.css">
 </head>
@@ -15,7 +20,8 @@
   
   <header class="header-configuracoes">
     <button id="btnConfiguracoes" class="btn-alerta btn-configuracoes" aria-label="Configurações do sistema">
-      <i class="fas fa-cog" aria-hidden="true"></i> Configurações
+      <i class="fas fa-cog" aria-hidden="true"></i>
+      <span>Configurações</span>
     </button>
   </header>
   
@@ -25,8 +31,7 @@
       
       <div class="grupo-form">
         <label for="nomeCliente" class="rotulo">Nome do Cliente</label>
-        <input type="text" id="nomeCliente" placeholder="Digite o nome completo" 
-               aria-label="Nome do cliente" aria-describedby="erroCliente" aria-required="true">
+        <input type="text" id="nomeCliente" placeholder="Digite o nome completo" aria-label="Nome do cliente" aria-describedby="erroCliente" aria-required="true">
         <div id="erroCliente" class="msg-erro" role="alert"></div>
         <button id="btnAdicionarCliente" aria-label="Adicionar novo cliente">
           <i class="fas fa-user-plus btn-icone" aria-hidden="true"></i>Adicionar Cliente
@@ -34,8 +39,7 @@
       </div>
       
       <div class="busca-clientes">
-        <input type="search" id="buscaCliente" placeholder="Buscar cliente..." 
-               aria-label="Buscar clientes cadastrados" aria-controls="listaClientes">
+        <input type="search" id="buscaCliente" placeholder="Buscar cliente..." aria-label="Buscar clientes cadastrados" aria-controls="listaClientes">
       </div>
       
       <h3>Clientes Cadastrados</h3>
@@ -66,11 +70,9 @@
       
       <div class="grupo-form">
         <label for="nomeProduto" class="rotulo">Descrição do Produto</label>
-        <input type="text" id="nomeProduto" placeholder="Nome do produto" 
-               aria-label="Descrição do produto" aria-describedby="erroProduto" aria-required="true">
+        <input type="text" id="nomeProduto" placeholder="Nome do produto" aria-label="Descrição do produto" aria-describedby="erroProduto" aria-required="true">
         <label for="precoProduto" class="rotulo">Valor (R$)</label>
-        <input type="number" id="precoProduto" placeholder="0,00" step="0.01" min="0.01"
-               aria-label="Valor do produto em reais" aria-describedby="erroProduto" aria-required="true">
+        <input type="number" id="precoProduto" placeholder="0,00" step="0.01" min="0.01" aria-label="Valor do produto em reais" aria-describedby="erroProduto" aria-required="true">
         <div id="erroProduto" class="msg-erro" role="alert"></div>
         <button id="btnAdicionarProduto" aria-label="Registrar nova compra">
           <i class="fas fa-cart-plus btn-icone" aria-hidden="true"></i>Registrar Compra
