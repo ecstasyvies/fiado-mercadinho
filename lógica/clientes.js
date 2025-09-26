@@ -41,12 +41,7 @@ export function adicionarCliente() {
   
   const transacao = db.transaction(['clientes'], 'readwrite');
   const armazenamento = transacao.objectStore('clientes');
-  const cliente = {
-    nome: nome,
-    produtos: [],
-    dataCadastro: new Date().toISOString()
-  };
-  
+  const cliente = { nome, produtos: [], dataCadastro: new Date().toISOString() };
   const requisicao = armazenamento.add(cliente);
   
   requisicao.onsuccess = function() {
@@ -58,141 +53,140 @@ export function adicionarCliente() {
     inputNome.focus();
   };
   
-  requisicao.onerror = function(e) {
+  requisicao.onerror = function() {
     elementoErro.textContent = MENSAGENS.erroGeral;
     elementoErro.style.display = 'block';
     btnAdicionar.classList.remove('loading');
   };
 }
 
-export function buscarClientes() {
-  return new Promise((resolve) => {
-    const termo = document.getElementById('buscaCliente').value.toLowerCase();
+async function obterClientes() {
+  return new Promise(resolve => {
     const transacao = db.transaction(['clientes'], 'readonly');
     const armazenamento = transacao.objectStore('clientes');
     const requisicao = armazenamento.getAll();
-    
-    requisicao.onsuccess = function(e) {
-      const clientes = e.target.result;
-      const lista = document.getElementById('listaClientes');
-      lista.innerHTML = '';
-      
-      if (clientes.length === 0) {
-        lista.innerHTML = '<li class="sem-registros">Nenhum cliente cadastrado</li>';
-        atualizarContadorClientes();
-        resolve();
-        return;
-      }
-      
-      const clientesFiltrados = termo ?
-        clientes.filter(cliente => cliente.nome.toLowerCase().includes(termo)) :
-        clientes;
-      
-      if (termo) {
-        const clienteSelecionadoEstaNaLista = clientesFiltrados.some(c => c.id === idClienteSelecionado);
-        if (!clienteSelecionadoEstaNaLista) {
-          idClienteSelecionado = null;
-          nomeClienteSelecionado = '';
-          document.getElementById('acoesCliente').className = 'acoes-cliente acoes-cliente-oculto';
-          document.getElementById('statusCliente').className = 'status-cliente status-cliente-oculto';
-          document.getElementById('listaProdutos').innerHTML = '<li class="sem-registros">Selecione um cliente para ver as compras</li>';
-          document.getElementById('totalCompra').innerHTML = 'Total: <span class="total-valor">R$ 0,00</span>';
-        }
-      }
-      
-      clientesFiltrados.sort((a, b) => a.nome.localeCompare(b.nome));
-      
-      if (clientesFiltrados.length === 0) {
-        lista.innerHTML = '<li class="sem-registros">Nenhum cliente encontrado</li>';
-        atualizarContadorClientes();
-        resolve();
-        return;
-      }
-      
-      clientesFiltrados.forEach(cliente => {
-        const item = document.createElement('li');
-        item.className = `item-lista ${cliente.id === idClienteSelecionado ? 'ativo' : ''}`;
-        item.innerHTML = `
-          <span>${cliente.nome}</span>
-          <span class="etiqueta">${cliente.produtos ? cliente.produtos.length : 0} itens</span>
-        `;
-        item.setAttribute('tabindex', '0');
-        item.setAttribute('role', 'button');
-        item.setAttribute('aria-label', `Selecionar cliente ${cliente.nome}`);
-        item.setAttribute('data-cliente-id', cliente.id);
-        
-        const selecionarCliente = () => {
-          idClienteSelecionado = cliente.id;
-          nomeClienteSelecionado = cliente.nome;
-          listarClientes();
-          listarProdutos(cliente.id);
-          document.getElementById('acoesCliente').className = 'acoes-cliente acoes-cliente-visivel';
-          document.getElementById('statusCliente').className = 'status-cliente status-cliente-visivel';
-          document.getElementById('nomeClienteSelecionado').textContent = cliente.nome;
-          
-          setTimeout(() => {
-            document.getElementById('nomeProduto').focus();
-          }, 100);
-        };
-        
-        item.addEventListener('click', selecionarCliente);
-        item.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            selecionarCliente();
-          } else if (e.key === 'ArrowDown') {
-            e.preventDefault();
-            const nextItem = item.nextElementSibling;
-            if (nextItem && nextItem.classList.contains('item-lista')) {
-              nextItem.focus();
-            }
-          } else if (e.key === 'ArrowUp') {
-            e.preventDefault();
-            const prevItem = item.previousElementSibling;
-            if (prevItem && prevItem.classList.contains('item-lista')) {
-              prevItem.focus();
-            }
-          } else if (e.key === 'Tab' && !e.shiftKey) {
-            const nextItem = item.nextElementSibling;
-            if (!nextItem || !nextItem.classList.contains('item-lista')) {
-              e.preventDefault();
-              document.getElementById('nomeProduto').focus();
-            }
-          }
-        });
-        lista.appendChild(item);
-      });
-      
-      atualizarContadorClientes();
-      resolve();
-    };
-    
-    requisicao.onerror = function(e) {
-      console.error('Erro ao recuperar lista de clientes:', e.target.error);
-      resolve();
-    };
+    requisicao.onsuccess = e => resolve(e.target.result);
+    requisicao.onerror = () => resolve([]);
   });
 }
 
+function filtrarClientes(clientes, termo) {
+  if (!termo) return clientes;
+  return clientes.filter(c => c.nome.toLowerCase().includes(termo));
+}
+
+function resetarSelecaoCliente() {
+  idClienteSelecionado = null;
+  nomeClienteSelecionado = '';
+  document.getElementById('acoesCliente').className = 'acoes-cliente acoes-cliente-oculto';
+  document.getElementById('statusCliente').className = 'status-cliente status-cliente-oculto';
+  document.getElementById('listaProdutos').innerHTML = '<li class="sem-registros">Selecione um cliente para ver as compras</li>';
+  document.getElementById('totalCompra').innerHTML = 'Total: <span class="total-valor">R$ 0,00</span>';
+}
+
+function criarItemCliente(cliente) {
+  const item = document.createElement('li');
+  item.className = `item-lista ${cliente.id === idClienteSelecionado ? 'ativo' : ''}`;
+  item.innerHTML = `
+    <span>${cliente.nome}</span>
+    <span class="etiqueta">${cliente.produtos ? cliente.produtos.length : 0} itens</span>
+  `;
+  item.setAttribute('tabindex', '0');
+  item.setAttribute('role', 'button');
+  item.setAttribute('aria-label', `Selecionar cliente ${cliente.nome}`);
+  item.setAttribute('data-cliente-id', cliente.id);
+  
+  const selecionarCliente = () => {
+    if (idClienteSelecionado === cliente.id) {
+      resetarSelecaoCliente();
+      listarClientes();
+      return;
+    }
+    idClienteSelecionado = cliente.id;
+    nomeClienteSelecionado = cliente.nome;
+    listarClientes();
+    listarProdutos(cliente.id);
+    document.getElementById('acoesCliente').className = 'acoes-cliente acoes-cliente-visivel';
+    document.getElementById('statusCliente').className = 'status-cliente status-cliente-visivel';
+    document.getElementById('nomeClienteSelecionado').textContent = cliente.nome;
+    setTimeout(() => {
+      const campo = document.getElementById('nomeProduto');
+      if (campo) {
+        campo.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        campo.focus({ preventScroll: true });
+      }
+    }, 200);
+  };
+  
+  item.addEventListener('click', selecionarCliente);
+  item.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      selecionarCliente();
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      const next = item.nextElementSibling;
+      if (next && next.classList.contains('item-lista')) next.focus();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      const prev = item.previousElementSibling;
+      if (prev && prev.classList.contains('item-lista')) prev.focus();
+    } else if (e.key === 'Tab' && !e.shiftKey) {
+      const next = item.nextElementSibling;
+      if (!next || !next.classList.contains('item-lista')) document.getElementById('nomeProduto').focus();
+    }
+  });
+  
+  return item;
+}
+
+function renderizarClientes(clientes) {
+  const lista = document.getElementById('listaClientes');
+  lista.innerHTML = '';
+  if (!clientes.length) {
+    lista.innerHTML = '<li class="sem-registros">Nenhum cliente encontrado</li>';
+    atualizarContadorClientes();
+    return;
+  }
+  clientes.sort((a, b) => a.nome.localeCompare(b.nome));
+  clientes.forEach(cliente => lista.appendChild(criarItemCliente(cliente)));
+  atualizarContadorClientes();
+}
+
+export async function buscarClientes() {
+  const termo = document.getElementById('buscaCliente').value.toLowerCase();
+  const clientes = await obterClientes();
+  const clientesFiltrados = filtrarClientes(clientes, termo);
+  if (termo && !clientesFiltrados.some(c => c.id === idClienteSelecionado)) resetarSelecaoCliente();
+  renderizarClientes(clientesFiltrados);
+}
+
 export function listarClientes() {
-  buscarClientes();
+  return buscarClientes();
+}
+
+function deletarClienteDoDB(clienteId, callbackSucesso, callbackErro) {
+  const transacao = db.transaction(['clientes'], 'readwrite');
+  const armazenamento = transacao.objectStore('clientes');
+  const requisicao = armazenamento.delete(clienteId);
+  requisicao.onsuccess = callbackSucesso;
+  requisicao.onerror = callbackErro;
 }
 
 export function removerCliente() {
   if (!idClienteSelecionado) return;
-  
   const transacao = db.transaction(['clientes'], 'readonly');
   const armazenamento = transacao.objectStore('clientes');
   const requisicao = armazenamento.get(idClienteSelecionado);
   const btnRemover = document.getElementById('btnRemoverCliente');
   btnRemover.classList.add('loading');
   
-  requisicao.onsuccess = function(e) {
+  requisicao.onsuccess = e => {
     const cliente = e.target.result;
     const temDivida = cliente.produtos?.length > 0;
-    const quantidadeDividas = cliente.produtos.length;
+    const qtd = cliente.produtos.length;
     const mensagem = temDivida ?
-      `ATENÇÃO: ${nomeClienteSelecionado} possui ${quantidadeDividas} ${quantidadeDividas === 1 ? 'dívida ativa' : 'dívidas ativas'}!\nDeseja realmente remover?` :
+      `ATENÇÃO: ${nomeClienteSelecionado} possui ${qtd} ${qtd === 1 ? 'dívida ativa' : 'dívidas ativas'}!\nDeseja realmente remover?` :
       `Remover ${nomeClienteSelecionado}?`;
     
     mostrarConfirmacao(
@@ -200,30 +194,19 @@ export function removerCliente() {
       mensagem,
       temDivida ? 'error' : 'question',
       () => {
-        const transacao = db.transaction(['clientes'], 'readwrite');
-        const armazenamento = transacao.objectStore('clientes');
-        const requisicao = armazenamento.delete(idClienteSelecionado);
-        
-        requisicao.onsuccess = function() {
-          idClienteSelecionado = null;
-          nomeClienteSelecionado = '';
-          document.getElementById('acoesCliente').className = 'acoes-cliente acoes-cliente-oculto';
-          document.getElementById('statusCliente').className = 'status-cliente status-cliente-oculto';
+        deletarClienteDoDB(idClienteSelecionado, () => {
+          resetarSelecaoCliente();
           listarClientes();
           document.getElementById('listaProdutos').innerHTML = '<li class="sem-registros">Selecione um cliente para ver as compras</li>';
           document.getElementById('totalCompra').innerHTML = 'Total: <span class="total-valor">R$ 0,00</span>';
           mostrarNotificacao(MENSAGENS.clienteRemovido, 'sucesso');
           btnRemover.classList.remove('loading');
-        };
-        
-        requisicao.onerror = function(e) {
+        }, () => {
           mostrarNotificacao(MENSAGENS.erroGeral, 'erro');
           btnRemover.classList.remove('loading');
-        };
+        });
       },
-      () => {
-        btnRemover.classList.remove('loading');
-      }
+      () => btnRemover.classList.remove('loading')
     );
   };
 }
@@ -231,12 +214,10 @@ export function removerCliente() {
 export function selecionarClientePorId(clienteId, clienteNome) {
   idClienteSelecionado = clienteId;
   nomeClienteSelecionado = clienteNome;
-  
   listarProdutos(clienteId);
   document.getElementById('acoesCliente').className = 'acoes-cliente acoes-cliente-visivel';
   document.getElementById('statusCliente').className = 'status-cliente status-cliente-visivel';
   document.getElementById('nomeClienteSelecionado').textContent = clienteNome;
-  
   listarClientes();
 }
 
