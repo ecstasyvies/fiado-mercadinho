@@ -4,25 +4,9 @@ import { senhaConfigurada, configurarSenha, removerSenha } from './seguranca.js'
 import { mostrarNotificacao, mostrarConfirmacao } from './interface.js';
 import { configurarModalAcessibilidade } from './acessibilidade.js';
 
-export function mostrarConfiguracoes() {
-  const overlay = document.createElement('div');
-  overlay.className = 'overlay-modal-escuro';
-  overlay.setAttribute('role', 'dialog');
-  overlay.setAttribute('aria-modal', 'true');
-  overlay.setAttribute('aria-label', 'Configurações do sistema');
-  
-  const modal = document.createElement('div');
-  modal.className = 'modal-escuro';
-  modal.tabIndex = -1;
-  modal.style.position = 'relative';
-  
-  modal.innerHTML = `
-    <div style="text-align: center; margin-bottom: 2rem;">
-      <i class="fas fa-cog modal-icone" style="color: var(--primaria);"></i>
-      <h3 class="modal-titulo">Configurações</h3>
-      <p style="color: #adb5bd;">Gerenciar configurações do sistema</p>
-    </div>
-    <div style="margin-bottom: 2rem;">
+function gerarSecaoSegurancaHTML() {
+  return `
+    <div id="secaoSeguranca" style="margin-bottom: 2rem;">
       <h4 style="color: var(--escura); margin-bottom: 1rem;">Segurança</h4>
       <div style="background: var(--clara); padding: 1rem; border-radius: var(--raio-pequeno);">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
@@ -41,76 +25,39 @@ export function mostrarConfiguracoes() {
         </div>
         <div style="font-size: 0.8rem; color: #adb5bd;">
           ${senhaConfigurada()
-            ? 'O sistema está protegido por senha. Clique em "Remover" para desativar.'
-            : 'O sistema não está protegido por senha. Clique em "Ativar" para configurar. Ao ativar, anote ou memorize a senha escolhida — sem ela não será possível acessar o sistema.'
+            ? 'O sistema encontra-se protegido por senha. Caso deseje desativar essa proteção, é possível selecionar a opção “Remover”.'
+            : 'O sistema encontra-se desprotegido por senha. Para habilitar a proteção, selecione a opção “Ativar” e configure uma senha. Recomenda-se registrar ou memorizar a senha escolhida, uma vez que o acesso ao sistema dependerá exclusivamente dela.'
           }
         </div>
       </div>
     </div>
-    <div style="text-align: center;">
-      <button id="fecharConfiguracoes" class="modal-botao" aria-label="Fechar configurações">Fechar</button>
-    </div>
   `;
-  
-  overlay.appendChild(modal);
-  document.body.appendChild(overlay);
-  
-  setTimeout(() => { modal.focus(); }, 50);
-  
-  const btnFechar = overlay.querySelector('#fecharConfiguracoes');
-  const btnConfigurarSenha = overlay.querySelector('#btnConfigurarSenha');
-  const btnRemoverSenha = overlay.querySelector('#btnRemoverSenha');
-  
-  btnFechar.addEventListener('click', () => {
-    overlay.remove();
-  });
-  
-  if (btnConfigurarSenha) {
-    btnConfigurarSenha.addEventListener('click', () => {
-      mostrarConfigurarSenha(overlay);
-    });
-  }
-  
-  if (btnRemoverSenha) {
-    btnRemoverSenha.addEventListener('click', () => {
-      mostrarConfirmacao(
-        'Remover Proteção',
-        'Tem certeza que deseja remover a proteção por senha?\n\nO sistema ficará desprotegido.',
-        'warning',
-        () => {
-          removerSenha();
-          overlay.remove();
-          // Atualizar o conteúdo do modal original em vez de fechá-lo
-          setTimeout(() => {
-            atualizarConteudoModal(overlayOriginal);
-          }, 1000);
-        }
-      );
-    });
-  }
-  
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) {
-      overlay.remove();
-    }
-  });
-  
-  configurarModalAcessibilidade(overlay, modal);
 }
 
-function mostrarConfigurarSenha(overlayOriginal) {
+function criarOverlayComModal(titulo, conteudoHTML) {
   const overlay = document.createElement('div');
   overlay.className = 'overlay-modal-escuro';
-  overlay.setAttribute('role', 'dialog');
-  overlay.setAttribute('aria-modal', 'true');
-  overlay.setAttribute('aria-label', 'Configurar senha');
+  overlay.setAttribute('aria-label', titulo);
   
   const modal = document.createElement('div');
   modal.className = 'modal-escuro';
   modal.tabIndex = -1;
-  modal.style.position = 'relative';
+  modal.innerHTML = conteudoHTML;
   
-  modal.innerHTML = `
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+  
+  configurarModalAcessibilidade(overlay, modal);
+  
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) overlay.remove();
+  });
+  
+  return { overlay, modal };
+}
+
+function mostrarConfigurarSenha(overlayOriginal) {
+  const { overlay, modal } = criarOverlayComModal('Configurar senha', `
     <div style="margin-bottom: 1.5rem; text-align: center;">
       <i class="fas fa-lock modal-icone" style="color: var(--primaria);"></i>
       <h3 class="modal-titulo">Configurar Senha</h3>
@@ -125,20 +72,21 @@ function mostrarConfigurarSenha(overlayOriginal) {
       <button id="cancelarSenha" class="modal-botao alerta" aria-label="Cancelar">Cancelar</button>
       <button id="confirmarNovaSenha" class="modal-botao" aria-label="Configurar">Configurar</button>
     </div>
-  `;
+  `);
   
-  overlay.appendChild(modal);
-  document.body.appendChild(overlay);
+  setTimeout(() => {
+    const inputSenha = modal.querySelector('#novaSenha');
+    if (inputSenha) {
+      inputSenha.focus({ preventScroll: true });
+      inputSenha.select();
+    }
+  }, 50);
   
-  setTimeout(() => { modal.focus(); }, 50);
-  
-  const inputSenha = overlay.querySelector('#novaSenha');
-  const inputConfirmar = overlay.querySelector('#confirmarSenha');
-  const btnCancelar = overlay.querySelector('#cancelarSenha');
-  const btnConfirmar = overlay.querySelector('#confirmarNovaSenha');
-  const erroSenha = overlay.querySelector('#erroSenha');
-  
-  inputSenha.focus();
+  const inputSenha = modal.querySelector('#novaSenha');
+  const inputConfirmar = modal.querySelector('#confirmarSenha');
+  const btnCancelar = modal.querySelector('#cancelarSenha');
+  const btnConfirmar = modal.querySelector('#confirmarNovaSenha');
+  const erroSenha = modal.querySelector('#erroSenha');
   
   const limparErro = () => {
     erroSenha.style.display = 'none';
@@ -154,26 +102,14 @@ function mostrarConfigurarSenha(overlayOriginal) {
     const senha = inputSenha.value.trim();
     const confirmacao = inputConfirmar.value.trim();
     
-    if (!senha) {
-      mostrarErro('Digite uma senha');
-      return;
-    }
-    if (senha.length < 4) {
-      mostrarErro('Senha deve ter pelo menos 4 caracteres');
-      return;
-    }
-    if (senha !== confirmacao) {
-      mostrarErro('Senhas não coincidem');
-      return;
-    }
+    if (!senha) { mostrarErro('Digite uma senha'); return; }
+    if (senha.length < 4) { mostrarErro('Senha deve ter pelo menos 4 caracteres'); return; }
+    if (senha !== confirmacao) { mostrarErro('Senhas não coincidem'); return; }
     
     try {
       configurarSenha(senha);
       overlay.remove();
-      // Atualizar o conteúdo do modal original em vez de fechá-lo
-      setTimeout(() => {
-        atualizarConteudoModal(overlayOriginal);
-      }, 1000);
+      setTimeout(() => atualizarConteudoModal(overlayOriginal), 500);
     } catch (error) {
       mostrarErro(error.message);
     }
@@ -182,96 +118,81 @@ function mostrarConfigurarSenha(overlayOriginal) {
   inputSenha.addEventListener('input', limparErro);
   inputConfirmar.addEventListener('input', limparErro);
   
-  inputSenha.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-      inputConfirmar.focus();
-    }
-  });
-  
-  inputConfirmar.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-      configurarNovaSenha();
-    }
-  });
+  inputSenha.addEventListener('keypress', (e) => { if (e.key === 'Enter') inputConfirmar.focus(); });
+  inputConfirmar.addEventListener('keypress', (e) => { if (e.key === 'Enter') configurarNovaSenha(); });
   
   btnConfirmar.addEventListener('click', configurarNovaSenha);
+  btnCancelar.addEventListener('click', () => overlay.remove());
+}
+
+export function mostrarConfiguracoes() {
+  const btnConfiguracoes = document.querySelector('.btn-configuracoes');
   
-  btnCancelar.addEventListener('click', () => {
+  if (btnConfiguracoes) btnConfiguracoes.classList.add('ativo');
+  
+  const { overlay, modal } = criarOverlayComModal('Configurações do sistema', `
+    <div style="text-align: center; margin-bottom: 2rem;">
+      <i class="fas fa-cog modal-icone" style="color: var(--primaria);"></i>
+      <h3 class="modal-titulo">Configurações</h3>
+      <p style="color: #adb5bd;">Gerenciar configurações do sistema</p>
+    </div>
+    ${gerarSecaoSegurancaHTML()}
+    <div style="text-align: center;">
+      <button id="fecharConfiguracoes" class="modal-botao" aria-label="Fechar configurações">Fechar</button>
+    </div>
+  `);
+  
+  const btnFechar = modal.querySelector('#fecharConfiguracoes');
+  const btnConfigurarSenha = modal.querySelector('#btnConfigurarSenha');
+  const btnRemoverSenha = modal.querySelector('#btnRemoverSenha');
+  
+  btnFechar.addEventListener('click', () => {
     overlay.remove();
+    if (btnConfiguracoes) btnConfiguracoes.classList.remove('ativo');
   });
   
+  if (btnConfigurarSenha) btnConfigurarSenha.addEventListener('click', () => mostrarConfigurarSenha(overlay));
+  if (btnRemoverSenha) btnRemoverSenha.addEventListener('click', () => {
+    mostrarConfirmacao(
+      'Remover Proteção',
+      'Confirma a remoção da proteção por senha? A desativação tornará o sistema desprotegido.',
+      'warning',
+      () => {
+        removerSenha();
+        overlay.remove();
+        if (btnConfiguracoes) btnConfiguracoes.classList.remove('ativo');
+        setTimeout(() => atualizarConteudoModal(overlay), 1000);
+      }
+    );
+  });
+
   overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) {
-      overlay.remove();
+    if (e.target === overlay && btnConfiguracoes) {
+      btnConfiguracoes.classList.remove('ativo');
     }
   });
-  
-  configurarModalAcessibilidade(overlay, modal);
 }
 
 function atualizarConteudoModal(overlay) {
   const modal = overlay.querySelector('.modal-escuro');
   if (!modal) return;
   
-  // Atualizar o conteúdo do modal com o status atual da senha
-  const conteudoSeguranca = `
-    <div style="margin-bottom: 2rem;">
-      <h4 style="color: var(--escura); margin-bottom: 1rem;">Segurança</h4>
-      <div style="background: var(--clara); padding: 1rem; border-radius: var(--raio-pequeno);">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-          <div>
-            <div style="font-weight: 600; color: var(--escura);">Proteção por Senha</div>
-            <div style="font-size: 0.85rem; color: ${senhaConfigurada() ? 'var(--sucesso)' : 'var(--alerta)'};">
-              ${senhaConfigurada() ? 'Ativada' : 'Desativada'}
-            </div>
-          </div>
-          <div style="display: flex; gap: 0.5rem;">
-            ${senhaConfigurada()
-              ? '<button id="btnRemoverSenha" class="modal-botao perigo" aria-label="Remover proteção por senha">Remover</button>'
-              : '<button id="btnConfigurarSenha" class="modal-botao" aria-label="Ativar proteção por senha">Ativar</button>'
-            }
-          </div>
-        </div>
-        <div style="font-size: 0.8rem; color: #adb5bd;">
-          ${senhaConfigurada()
-            ? 'O sistema está protegido por senha. Clique em "Remover" para desativar.'
-            : 'O sistema não está protegido por senha. Clique em "Ativar" para configurar. Ao ativar, anote ou memorize a senha escolhida — sem ela não será possível acessar o sistema.'
-          }
-        </div>
-      </div>
-    </div>
-  `;
+  const containerSeguranca = modal.querySelector('#secaoSeguranca');
+  if (containerSeguranca) containerSeguranca.outerHTML = gerarSecaoSegurancaHTML();
   
-  // Substituir o conteúdo de segurança no modal
-  const containerSeguranca = modal.querySelector('div:nth-child(2)');
-  if (containerSeguranca) {
-    containerSeguranca.outerHTML = conteudoSeguranca;
-  }
-  
-  // Reconfigurar os event listeners para os novos botões
   const btnConfigurarSenha = overlay.querySelector('#btnConfigurarSenha');
   const btnRemoverSenha = overlay.querySelector('#btnRemoverSenha');
   
-  if (btnConfigurarSenha) {
-    btnConfigurarSenha.addEventListener('click', () => {
-      mostrarConfigurarSenha(overlay);
-    });
-  }
-  
-  if (btnRemoverSenha) {
-    btnRemoverSenha.addEventListener('click', () => {
-      mostrarConfirmacao(
-        'Remover Proteção',
-        'Tem certeza que deseja remover a proteção por senha?\n\nO sistema ficará desprotegido.',
-        'warning',
-        () => {
-          removerSenha();
-          // Atualizar o conteúdo do modal em vez de fechá-lo
-          setTimeout(() => {
-            atualizarConteudoModal(overlay);
-          }, 1000);
-        }
-      );
-    });
-  }
+  if (btnConfigurarSenha) btnConfigurarSenha.onclick = () => mostrarConfigurarSenha(overlay);
+  if (btnRemoverSenha) btnRemoverSenha.onclick = () => {
+    mostrarConfirmacao(
+      'Remover Proteção',
+      'Confirma a remoção da proteção por senha? A desativação tornará o sistema desprotegido.',
+      'warning',
+      () => {
+        removerSenha();
+        setTimeout(() => atualizarConteudoModal(overlay), 1000);
+      }
+    );
+  };
 }
