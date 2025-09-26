@@ -42,6 +42,14 @@ function validarEstruturaDados(dados) {
       throw new Error(`Cliente ${i + 1}: nome é obrigatório e deve ser uma string válida`);
     }
     
+    if (cliente.valorPago !== undefined && (typeof cliente.valorPago !== 'number' || cliente.valorPago < 0)) {
+      throw new Error(`Cliente ${i + 1}: valorPago deve ser um número não negativo`);
+    }
+    
+    if (cliente.pagamentos !== undefined && !Array.isArray(cliente.pagamentos)) {
+      throw new Error(`Cliente ${i + 1}: pagamentos deve ser um array`);
+    }
+    
     if (cliente.produtos !== undefined && !Array.isArray(cliente.produtos)) {
       throw new Error(`Cliente ${i + 1}: produtos deve ser um array`);
     }
@@ -60,14 +68,6 @@ function validarEstruturaDados(dados) {
         
         if (typeof produto.preco !== 'number' || produto.preco <= 0) {
           throw new Error(`Cliente ${i + 1}, Produto ${j + 1}: preço deve ser um número positivo`);
-        }
-        
-        if (cliente.valorPago !== undefined && (typeof cliente.valorPago !== 'number' || cliente.valorPago < 0)) {
-          throw new Error(`Cliente ${i + 1}: valorPago deve ser um número não negativo`);
-        }
-        
-        if (cliente.pagamentos !== undefined && !Array.isArray(cliente.pagamentos)) {
-          throw new Error(`Cliente ${i + 1}: pagamentos deve ser um array`);
         }
       }
     }
@@ -93,55 +93,71 @@ export function importarDados() {
         
         validarEstruturaDados(dados);
         
-        mostrarConfirmacao(
-          'Importar Dados',
-          `Encontrados ${dados.length} clientes para importar.\n\nATENÇÃO: Esta operação irá substituir todos os dados atuais!\n\nDeseja continuar?`,
-          'warning',
-          () => {
-            const transacao = db.transaction(['clientes'], 'readwrite');
-            const armazenamento = transacao.objectStore('clientes');
-            
+        const transacao = db.transaction(['clientes'], 'readwrite');
+        const armazenamento = transacao.objectStore('clientes');
+        
+        const processarMesclagem = (clientesAtuais) => {
+          if (Array.isArray(dados) && dados.length === 0) {
             const requisicaoLimpar = armazenamento.clear();
-            
             requisicaoLimpar.onsuccess = () => {
-              let importados = 0;
-              let erros = 0;
-              
-              dados.forEach((cliente, index) => {
-                const clienteLimpo = { ...cliente };
-                delete clienteLimpo.id;
-                
-                const requisicao = armazenamento.add(clienteLimpo);
-                
-                requisicao.onsuccess = () => {
-                  importados++;
-                  if (importados + erros === dados.length) {
-                    listarClientes();
-                    mostrarNotificacao(
-                      `Importação concluída: ${importados} clientes importados${erros > 0 ? `, ${erros} erros` : ''}`,
-                      erros > 0 ? 'alerta' : 'sucesso'
-                    );
-                  }
-                };
-                
-                requisicao.onerror = () => {
-                  erros++;
-                  if (importados + erros === dados.length) {
-                    listarClientes();
-                    mostrarNotificacao(
-                      `Importação concluída: ${importados} clientes importados${erros > 0 ? `, ${erros} erros` : ''}`,
-                      erros > 0 ? 'alerta' : 'sucesso'
-                    );
-                  }
-                };
-              });
+              listarClientes();
+              mostrarNotificacao('Todos os clientes foram removidos (importação vazia).', 'alerta');
             };
-            
-            requisicaoLimpar.onerror = () => {
-              mostrarNotificacao('Erro ao limpar dados existentes', 'erro');
-            };
+            requisicaoLimpar.onerror = () => mostrarNotificacao('Erro ao limpar dados existentes', 'erro');
+            return;
           }
-        );
+          
+          const mapaPorNome = new Map();
+          clientesAtuais.forEach(c => mapaPorNome.set((c.nome || '').toLowerCase(), c));
+          
+          let importados = 0;
+          let erros = 0;
+          
+          dados.forEach((cliente) => {
+            const nomeKey = (cliente.nome || '').toLowerCase();
+            const existente = mapaPorNome.get(nomeKey);
+            if (existente) {
+              const clienteAtualizado = { ...existente };
+              const produtosNovos = Array.isArray(cliente.produtos) ? cliente.produtos : [];
+              clienteAtualizado.produtos = Array.isArray(clienteAtualizado.produtos) ? clienteAtualizado.produtos : [];
+              clienteAtualizado.produtos.push(...produtosNovos);
+              const pagamentosNovos = Array.isArray(cliente.pagamentos) ? cliente.pagamentos : [];
+              clienteAtualizado.pagamentos = Array.isArray(clienteAtualizado.pagamentos) ? clienteAtualizado.pagamentos : [];
+              clienteAtualizado.pagamentos.push(...pagamentosNovos);
+              if (typeof cliente.valorPago === 'number') {
+                clienteAtualizado.valorPago = (clienteAtualizado.valorPago || 0) + cliente.valorPago;
+              }
+              
+              const reqUpdate = armazenamento.put(clienteAtualizado);
+              reqUpdate.onsuccess = () => { importados++;
+                finalizar(); };
+              reqUpdate.onerror = () => { erros++;
+                finalizar(); };
+            } else {
+              const clienteNovo = { ...cliente };
+              delete clienteNovo.id;
+              const reqAdd = armazenamento.add(clienteNovo);
+              reqAdd.onsuccess = () => { importados++;
+                finalizar(); };
+              reqAdd.onerror = () => { erros++;
+                finalizar(); };
+            }
+          });
+          
+          function finalizar() {
+            if (importados + erros === dados.length) {
+              listarClientes();
+              mostrarNotificacao(
+                `Importação concluída: ${importados} registros processados${erros > 0 ? `, ${erros} erros` : ''}`,
+                erros > 0 ? 'alerta' : 'sucesso'
+              );
+            }
+          }
+        };
+        
+        const reqGetAll = armazenamento.getAll();
+        reqGetAll.onsuccess = (ev) => processarMesclagem(ev.target.result || []);
+        reqGetAll.onerror = () => mostrarNotificacao('Erro ao ler dados atuais', 'erro');
         
       } catch (error) {
         if (error.name === 'SyntaxError') {
