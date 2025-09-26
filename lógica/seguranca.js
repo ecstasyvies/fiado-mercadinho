@@ -19,22 +19,27 @@ export function senhaAtiva() {
 }
 
 export function configurarSenha(senha) {
+  validarSenha(senha);
+  const hash = criarHash(senha);
+  salvarSenha(hash);
+  mostrarNotificacao('Senha configurada com sucesso!', 'sucesso');
+}
+
+function validarSenha(senha) {
   if (!senha || senha.length < 4) {
     throw new Error('Senha deve ter pelo menos 4 caracteres');
   }
-  const hash = criarHash(senha);
+}
+
+function salvarSenha(hash) {
   localStorage.setItem(CHAVE_SENHA, hash);
   localStorage.setItem(CHAVE_SENHA_ATIVA, 'true');
-  mostrarNotificacao('Senha configurada com sucesso!', 'sucesso');
 }
 
 export function verificarSenha(senha) {
   const hashArmazenado = localStorage.getItem(CHAVE_SENHA);
-  if (!hashArmazenado) {
-    return false;
-  }
-  const hashDigitado = criarHash(senha);
-  return hashDigitado === hashArmazenado;
+  if (!hashArmazenado) return false;
+  return criarHash(senha) === hashArmazenado;
 }
 
 export function removerSenha() {
@@ -45,104 +50,123 @@ export function removerSenha() {
 
 export function mostrarPromptSenha() {
   return new Promise((resolve) => {
-
     if (!senhaAtiva()) {
       resolve(true);
       return;
     }
-    const overlay = document.createElement('div');
-    overlay.className = 'overlay-modal-escuro';
-    overlay.setAttribute('role', 'dialog');
-    overlay.setAttribute('aria-modal', 'true');
-    overlay.setAttribute('aria-label', 'Acesso ao Sistema');
 
-    const modal = document.createElement('div');
-    modal.className = 'modal-escuro';
-    modal.tabIndex = -1;
-    modal.style.position = 'relative';
-
-    modal.innerHTML = `
-      <div style="margin-bottom: 1.5rem; text-align: center;">
-        <i class="fas fa-lock modal-icone" style="color: var(--primaria);"></i>
-        <h3 class="modal-titulo">Acesso ao Sistema</h3>
-        <p style="color: #adb5bd; margin-bottom: 1rem;">
-          ${senhaConfigurada() ? 'Digite sua senha para acessar o sistema' : 'Configure uma senha para proteger o sistema'}
-        </p>
-      </div>
-      <div style="margin-bottom: 1.5rem;">
-        <input type="password" id="senhaInput" class="modal-input" placeholder="${senhaConfigurada() ? 'Digite sua senha' : 'Digite uma senha (mín. 4 caracteres)'}" aria-label="Senha de acesso">
-        <div id="erroSenha" class="modal-erro" style="display: none;"></div>
-      </div>
-      <div style="display: flex; gap: 1rem; justify-content: center;">
-        <button id="btnCancelarSenha" class="modal-botao alerta" aria-label="Cancelar">Cancelar</button>
-        <button id="btnConfirmarSenha" class="modal-botao" aria-label="${senhaConfigurada() ? 'Entrar' : 'Configurar'}">${senhaConfigurada() ? 'Entrar' : 'Configurar'}</button>
-      </div>
-    `;
-
-    overlay.appendChild(modal);
+    const { overlay, modal, elementos } = criarModalSenha();
     document.body.appendChild(overlay);
-    setTimeout(() => { modal.focus(); }, 50);
+    abrirModal(modal);
 
-    const inputSenha = overlay.querySelector('#senhaInput');
-    const btnCancelar = overlay.querySelector('#btnCancelarSenha');
-    const btnConfirmar = overlay.querySelector('#btnConfirmarSenha');
-    const erroSenha = overlay.querySelector('#erroSenha');
-
-    inputSenha.focus();
-
-    const limparErro = () => {
-      erroSenha.style.display = 'none';
-      erroSenha.textContent = '';
-    };
-
-    const mostrarErro = (mensagem) => {
-      erroSenha.textContent = mensagem;
-      erroSenha.style.display = 'block';
-    };
-
-    const verificarEAcessar = () => {
-      const senha = inputSenha.value.trim();
-      if (!senha) {
-        mostrarErro('Digite uma senha');
-        return;
-      }
-      if (senhaConfigurada()) {
-        if (verificarSenha(senha)) {
-          overlay.remove();
-          resolve(true);
-        } else {
-          mostrarErro('Senha incorreta');
-          inputSenha.value = '';
-          inputSenha.focus();
-        }
-      } else {
-        try {
-          configurarSenha(senha);
-          overlay.remove();
-          resolve(true);
-        } catch (error) {
-          mostrarErro(error.message);
-        }
-      }
-    };
-
-    inputSenha.addEventListener('input', limparErro);
-    inputSenha.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
-        verificarEAcessar();
-      }
-    });
-    btnConfirmar.addEventListener('click', verificarEAcessar);
-    btnCancelar.addEventListener('click', () => {
-      overlay.remove();
-      resolve(false);
-    });
-    overlay.addEventListener('click', (e) => {
-      if (e.target === overlay) {
-        overlay.remove();
-        resolve(false);
-      }
-    });
     configurarModalAcessibilidade(overlay, modal);
+    focarInputSenha(elementos.inputSenha);
+
+    const limparErro = () => esconderErro(elementos.erroSenha);
+    const fecharModal = (resultado = false) => finalizarModal(overlay, modal, resolve, resultado);
+    const verificarEAcessar = () => processarSenha(elementos.inputSenha, fecharModal, elementos.erroSenha);
+
+    elementos.inputSenha.addEventListener('input', limparErro);
+    elementos.inputSenha.addEventListener('keypress', (e) => { if (e.key === 'Enter') verificarEAcessar(); });
+    elementos.btnConfirmar.addEventListener('click', verificarEAcessar);
+    elementos.btnCancelar.addEventListener('click', () => fecharModal(false));
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) fecharModal(false); });
+    modal.addEventListener('cancel', (e) => { e.preventDefault(); fecharModal(false); });
   });
+}
+
+function criarModalSenha() {
+  const overlay = document.createElement('div');
+  overlay.className = 'overlay-modal-escuro';
+  overlay.setAttribute('aria-label', 'Acesso ao Sistema');
+
+  const modal = document.createElement('dialog');
+  modal.className = 'modal-escuro';
+  modal.setAttribute('role', 'dialog');
+  modal.setAttribute('aria-modal', 'true');
+  modal.style.position = 'relative';
+
+  modal.innerHTML = gerarHTMLModal();
+
+  overlay.appendChild(modal);
+
+  const elementos = {
+    inputSenha: overlay.querySelector('#senhaInput'),
+    btnCancelar: overlay.querySelector('#btnCancelarSenha'),
+    btnConfirmar: overlay.querySelector('#btnConfirmarSenha'),
+    erroSenha: overlay.querySelector('#erroSenha')
+  };
+
+  return { overlay, modal, elementos };
+}
+
+function gerarHTMLModal() {
+  return `
+    <div style="margin-bottom: 1.5rem; text-align: center;">
+      <i class="fas fa-lock modal-icone" style="color: var(--primaria);"></i>
+      <h3 class="modal-titulo">Acesso ao Sistema</h3>
+      <p style="color: #adb5bd; margin-bottom: 1rem;">
+        ${senhaConfigurada() ? 'Digite sua senha para acessar o sistema' : 'Configure uma senha para proteger o sistema'}
+      </p>
+    </div>
+    <div style="margin-bottom: 1.5rem;">
+      <input type="password" id="senhaInput" class="modal-input" placeholder="${senhaConfigurada() ? 'Digite sua senha' : 'Digite uma senha (mín. 4 caracteres)'}" aria-label="Senha de acesso" aria-describedby="erroSenha" autofocus>
+      <div id="erroSenha" class="modal-erro" style="display: none;"></div>
+    </div>
+    <div style="display: flex; gap: 1rem; justify-content: center;">
+      <button id="btnCancelarSenha" class="modal-botao alerta" aria-label="Cancelar">Cancelar</button>
+      <button id="btnConfirmarSenha" class="modal-botao" aria-label="${senhaConfigurada() ? 'Entrar' : 'Configurar'}">${senhaConfigurada() ? 'Entrar' : 'Configurar'}</button>
+    </div>
+  `;
+}
+
+function abrirModal(modal) {
+  try { modal.showModal(); } catch (_) {}
+}
+
+function focarInputSenha(inputSenha) {
+  setTimeout(() => {
+    inputSenha.focus({ preventScroll: true });
+    inputSenha.select();
+  }, 100);
+}
+
+function esconderErro(erroSenha) {
+  erroSenha.style.display = 'none';
+  erroSenha.textContent = '';
+}
+
+function mostrarErro(erroSenha, mensagem) {
+  erroSenha.textContent = mensagem;
+  erroSenha.style.display = 'block';
+}
+
+function finalizarModal(overlay, modal, resolve, resultado) {
+  try { modal.close(); } catch (_) {}
+  overlay.remove();
+  resolve(resultado);
+}
+
+function processarSenha(inputSenha, fecharModal, erroSenha) {
+  const senha = inputSenha.value.trim();
+  if (!senha) {
+    mostrarErro(erroSenha, 'Digite uma senha');
+    return;
+  }
+  if (senhaConfigurada()) {
+    if (verificarSenha(senha)) {
+      fecharModal(true);
+    } else {
+      mostrarErro(erroSenha, 'Senha incorreta');
+      inputSenha.value = '';
+      focarInputSenha(inputSenha);
+    }
+  } else {
+    try {
+      configurarSenha(senha);
+      fecharModal(true);
+    } catch (error) {
+      mostrarErro(erroSenha, error.message);
+    }
+  }
 }
