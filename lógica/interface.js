@@ -10,7 +10,7 @@ export const MENSAGENS = {
   divididaLiquidada: function(quantidade) {
     return `${quantidade === 1 ? 'Dívida' : 'Dívidas'} liquidada${quantidade === 1 ? '' : 's'} com sucesso!`;
   },
-  backupExportado: 'Backup exportado com sucesso!',
+  backupExportado: 'Backup concluído.',
   dadosImportados: 'Dados importados com sucesso!',
   erroGeral: 'Erro na operação',
   erroNomeVazio: 'Insira um nome válido',
@@ -24,9 +24,10 @@ export const MENSAGENS = {
 
 export function mostrarNotificacao(mensagem, tipo = 'info') {
   const container = document.getElementById('notificacaoContainer');
+  if (!container) return console.error('Container de notificações não encontrado');
+  
   const notificacao = document.createElement('div');
   notificacao.className = `notificacao ${tipo}`;
-  
   let icone;
   switch (tipo) {
     case 'sucesso':
@@ -43,43 +44,32 @@ export function mostrarNotificacao(mensagem, tipo = 'info') {
   }
   
   notificacao.innerHTML = `
-    <div class="notificacao-conteudo">
-        ${icone}
-        <span>${mensagem}</span>
-    </div>
+    <div class="notificacao-conteudo">${icone}<span>${mensagem}</span></div>
     <button class="notificacao-fechar">&times;</button>
   `;
-  
   container.appendChild(notificacao);
   
-  setTimeout(() => {
-    notificacao.classList.add('mostrar');
-  }, 10);
+  setTimeout(() => notificacao.classList.add('mostrar'), 10);
   
-  const btnFechar = notificacao.querySelector('.notificacao-fechar');
   const fecharNotificacao = () => {
     notificacao.classList.remove('mostrar');
-    setTimeout(() => {
-      notificacao.remove();
-    }, 300);
+    setTimeout(() => notificacao.remove(), 300);
   };
   
-  btnFechar.addEventListener('click', fecharNotificacao);
+  notificacao.querySelector('.notificacao-fechar').addEventListener('click', fecharNotificacao);
   setTimeout(fecharNotificacao, 5000);
 }
 
-export function mostrarConfirmacao(titulo, mensagem, tipo, callbackConfirmar, callbackCancelar = () => {}) {
+export function mostrarConfirmacao(titulo, mensagem, tipo, callbackConfirmar, callbackCancelar = () => {}, buttonLoading = null) {
   const overlay = document.createElement('div');
   overlay.className = 'overlay-modal-escuro';
-  overlay.setAttribute('role', 'dialog');
-  overlay.setAttribute('aria-modal', 'true');
   overlay.setAttribute('aria-label', titulo);
-
+  
   const modal = document.createElement('div');
   modal.className = 'modal-escuro';
   modal.tabIndex = -1;
   modal.style.position = 'relative';
-
+  
   let icone, cor;
   switch (tipo) {
     case 'error':
@@ -98,81 +88,59 @@ export function mostrarConfirmacao(titulo, mensagem, tipo, callbackConfirmar, ca
       icone = 'info-circle';
       cor = 'var(--primaria)';
   }
-
+  
   modal.innerHTML = `
     <div style="text-align: center; margin-bottom: 1.5rem;">
-        <i class="fas fa-${icone} modal-icone" style="color: ${cor};"></i>
-        <h3 class="modal-titulo">${titulo}</h3>
-        <p style="color: #adb5bd;">${mensagem.replace(/\n/g, '<br>')}</p>
+      <i class="fas fa-${icone} modal-icone" style="color: ${cor};"></i>
+      <h3 class="modal-titulo">${titulo}</h3>
+      <p style="color: #adb5bd;">${mensagem.replace(/\n/g, '<br>')}</p>
     </div>
     <div style="display: flex; gap: 1rem; justify-content: center;">
-        <button id="confirmarCancelar" class="modal-botao alerta" aria-label="Cancelar ação">Cancelar</button>
-        <button id="confirmarOk" class="modal-botao" aria-label="Confirmar ação">Confirmar</button>
+      <button id="confirmarCancelar" class="modal-botao alerta" aria-label="Cancelar ação">Cancelar</button>
+      <button id="confirmarOk" class="modal-botao" aria-label="Confirmar ação">Confirmar</button>
     </div>
   `;
-
+  
   overlay.appendChild(modal);
   document.body.appendChild(overlay);
-
-  setTimeout(() => { modal.focus(); }, 50);
-
-  const btnCancelar = overlay.querySelector('#confirmarCancelar');
-  const btnConfirmar = overlay.querySelector('#confirmarOk');
-
-  const confinarTabulacao = (e) => {
-    if (e.key === 'Tab') {
-      const elementosFocaveis = overlay.querySelectorAll(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-      );
-      const primeiroElemento = elementosFocaveis[0];
-      const ultimoElemento = elementosFocaveis[elementosFocaveis.length - 1];
-
-      if (e.shiftKey) {
-        if (document.activeElement === primeiroElemento) {
-          e.preventDefault();
-          ultimoElemento.focus();
-        }
-      } else {
-        if (document.activeElement === ultimoElemento) {
-          e.preventDefault();
-          primeiroElemento.focus();
-        }
-      }
-    }
+  
+  const fecharModal = configurarModalAcessibilidade(overlay, modal);
+  
+  const limparLoading = () => {
+    if (buttonLoading) setButtonLoading(buttonLoading, false);
   };
-
-  btnCancelar.addEventListener('click', () => {
-    overlay.remove();
+  
+  overlay.querySelector('#confirmarCancelar').addEventListener('click', () => {
+    limparLoading();
+    fecharModal();
     callbackCancelar();
   });
-
-  btnConfirmar.addEventListener('click', () => {
-    overlay.remove();
+  
+  overlay.querySelector('#confirmarOk').addEventListener('click', () => {
+    limparLoading();
+    fecharModal();
     callbackConfirmar();
   });
-
+  
   overlay.addEventListener('click', (e) => {
     if (e.target === overlay) {
-      overlay.remove();
+      limparLoading();
+      fecharModal();
       callbackCancelar();
     }
   });
-
-  configurarModalAcessibilidade(overlay, modal);
 }
 
 export function setButtonLoading(button, isLoading) {
   const originalText = button.innerHTML;
-  
   if (isLoading) {
     button.dataset.originalText = originalText;
     button.classList.add('loading');
     button.innerHTML = '<span style="visibility: hidden;">' + originalText + '</span>';
     button.disabled = true;
   } else {
-    const textToRestore = button.dataset.originalText || originalText;
     button.classList.remove('loading');
-    button.innerHTML = textToRestore;
+    button.innerHTML = button.dataset.originalText || originalText;
     button.disabled = false;
     delete button.dataset.originalText;
   }
