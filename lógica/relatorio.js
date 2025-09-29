@@ -1,7 +1,7 @@
 'use strict';
 
 import { db } from './dataset.js';
-import { mostrarNotificacao } from './interface.js';
+import { aoAbrirModal, aoFecharModal } from './interface.js';
 import { configurarModalAcessibilidade } from './acessibilidade.js';
 
 export function calcularEstatisticas() {
@@ -11,7 +11,7 @@ export function calcularEstatisticas() {
       resolve(estatisticasVazias());
       return;
     }
-
+    
     const requisicao = criarRequisicaoClientes();
     requisicao.onsuccess = (e) => resolve(processarClientes(e.target.result));
     requisicao.onerror = (e) => {
@@ -32,18 +32,24 @@ function processarClientes(clientes) {
   let totalClientes = clientes.length;
   let clientesComDivida = 0;
   let totalProdutos = 0;
-
+  
   clientes.forEach(cliente => {
-    if (cliente.produtos && cliente.produtos.length > 0) {
+    const totalBruto = (cliente.produtos && cliente.produtos.length > 0) ? calcularTotalCliente(cliente.produtos) : 0;
+    const valorPago = cliente.valorPago || 0;
+    const dividaPendente = totalBruto - valorPago;
+    
+    cliente.dividaPendente = dividaPendente;
+    
+    if (dividaPendente > 0) {
       clientesComDivida++;
+      totalDividas += dividaPendente;
+    }
+    
+    if (cliente.produtos && cliente.produtos.length > 0) {
       totalProdutos += cliente.produtos.length;
-      cliente.totalDividaCliente = calcularTotalCliente(cliente.produtos);
-      totalDividas += cliente.totalDividaCliente;
-    } else {
-      cliente.totalDividaCliente = 0;
     }
   });
-
+  
   return {
     totalDividas,
     totalClientes,
@@ -62,8 +68,8 @@ function calcularTotalCliente(produtos) {
 
 function obterTopClientes(clientes) {
   return [...clientes]
-    .filter(c => c.produtos && c.produtos.length > 0)
-    .sort((a, b) => b.totalDividaCliente - a.totalDividaCliente)
+    .filter(c => c.dividaPendente > 0)
+    .sort((a, b) => b.dividaPendente - a.dividaPendente)
     .slice(0, 5);
 }
 
@@ -81,7 +87,8 @@ export function mostrarRelatorio() {
   calcularEstatisticas().then(stats => {
     const { overlay, modal } = criarModalRelatorio(stats);
     document.body.appendChild(overlay);
-
+    aoAbrirModal();
+    
     const fecharModal = configurarModalAcessibilidade(overlay, modal);
     configurarEventosFecharRelatorio(overlay, fecharModal);
   });
@@ -91,7 +98,7 @@ function criarModalRelatorio(stats) {
   const overlay = criarOverlay('Relatório de Fiados');
   const modal = criarElementoModal();
   modal.innerHTML = gerarHTMLRelatorio(stats);
-
+  
   overlay.appendChild(modal);
   return { overlay, modal };
 }
@@ -108,13 +115,13 @@ function criarElementoModal() {
   modal.className = 'modal-escuro';
   modal.tabIndex = -1;
   modal.style.position = 'relative';
-
+  
   if (window.innerWidth >= 1024) {
     modal.style.maxWidth = '600px';
     modal.style.width = '100%';
     modal.style.boxSizing = 'border-box';
   }
-
+  
   return modal;
 }
 
@@ -134,19 +141,24 @@ function gerarHTMLRelatorio(stats) {
 }
 
 function gerarEstatisticasHTML(stats) {
-  const formatarValor = (valor, cor, descricao) => `
-    <div style="background: var(--clara); padding: 1rem; border-radius: var(--raio-pequeno); text-align: center;">
-      <div style="font-size: 2rem; font-weight: bold; color: ${cor}; text-shadow: 0 0 1px rgba(0, 0, 0, 0.3);">${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor)}</div>
-      <div style="color: var(--cinza-claro-azulado); font-size: 0.9rem;">${descricao}</div>
-    </div>
-  `;
-
+  const formatarValor = (valor, cor, descricao, tipo = 'numero') => {
+    const valorFormatado = tipo === 'moeda' ?
+      new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor) :
+      valor;
+    return `
+      <div style="background: var(--clara); padding: 1rem; border-radius: var(--raio-pequeno); text-align: center; max-width: 200px; word-break: break-word; overflow-wrap: anywhere;">
+        <div style="font-size: 2rem; font-weight: bold; color: ${cor}; text-shadow: 0 0 1px rgba(0, 0, 0, 0.3);">${valorFormatado}</div>
+        <div style="color: var(--cinza-claro-azulado); font-size: 0.9rem;">${descricao}</div>
+      </div>
+    `;
+  };
+  
   return `
     <div class="modal-estatisticas" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
-      ${formatarValor(stats.totalDividas, 'var(--valor-monetario)', 'Total em Fiados')}
-      ${formatarValor(stats.totalClientes, 'var(--sucesso)', 'Total de Clientes')}
-      ${formatarValor(stats.clientesComDivida, 'var(--alerta)', 'Com Dívidas')}
-      ${formatarValor(stats.totalProdutos, 'var(--erro)', 'Itens Fiados')}
+      ${formatarValor(stats.totalDividas, 'var(--valor-monetario)', 'Total em Fiados', 'moeda')}
+      ${formatarValor(stats.totalClientes, 'var(--sucesso)', 'Total de Clientes', 'numero')}
+      ${formatarValor(stats.clientesComDivida, 'var(--alerta)', 'Com Dívidas', 'numero')}
+      ${formatarValor(stats.totalProdutos, 'var(--erro)', 'Itens Fiados', 'numero')}
     </div>
   `;
 }
@@ -170,16 +182,18 @@ function gerarClienteHTML(cliente, index) {
         <div style="font-size: 0.85rem; color: #adb5bd;">${cliente.produtos.length} itens</div>
       </div>
       <div style="text-align: right;">
-        <div style="font-weight: 600; color: var(--primaria);">${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(cliente.totalDividaCliente)}</div>
+        <div style="font-weight: 600; color: var(--primaria);">${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(cliente.dividaPendente)}</div>
       </div>
     </div>
   `;
 }
 
 function configurarEventosFecharRelatorio(overlay, fecharModal) {
-  const btnFechar = overlay.querySelector('#fecharRelatorio');
-  btnFechar.addEventListener('click', fecharModal);
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) fecharModal();
-  });
+  const fechar = () => {
+    aoFecharModal();
+    fecharModal();
+  };
+  
+  overlay.querySelector('#fecharRelatorio')?.addEventListener('click', fechar);
+  overlay.addEventListener('click', e => e.target === overlay && fechar());
 }
