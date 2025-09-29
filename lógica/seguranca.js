@@ -1,6 +1,6 @@
 'use strict';
 
-import { mostrarNotificacao, mostrarConfirmacao } from './interface.js';
+import { mostrarNotificacao, aoAbrirModal, aoFecharModal } from './interface.js';
 import { configurarModalAcessibilidade } from './acessibilidade.js';
 
 const CHAVE_SENHA = 'fiados_senha_hash';
@@ -50,53 +50,58 @@ export function removerSenha() {
 
 export function mostrarPromptSenha() {
   return new Promise((resolve) => {
-    if (!senhaAtiva()) {
+    if (!senhaConfigurada()) {
       resolve(true);
       return;
     }
-
+    
     const { overlay, modal, elementos } = criarModalSenha();
     document.body.appendChild(overlay);
+    aoAbrirModal();
     abrirModal(modal);
-
+    
     configurarModalAcessibilidade(overlay, modal);
     focarInputSenha(elementos.inputSenha);
-
+    
     const limparErro = () => esconderErro(elementos.erroSenha);
     const fecharModal = (resultado = false) => finalizarModal(overlay, modal, resolve, resultado);
     const verificarEAcessar = () => processarSenha(elementos.inputSenha, fecharModal, elementos.erroSenha);
-
+    
     elementos.inputSenha.addEventListener('input', limparErro);
     elementos.inputSenha.addEventListener('keypress', (e) => { if (e.key === 'Enter') verificarEAcessar(); });
     elementos.btnConfirmar.addEventListener('click', verificarEAcessar);
     elementos.btnCancelar.addEventListener('click', () => fecharModal(false));
     overlay.addEventListener('click', (e) => { if (e.target === overlay) fecharModal(false); });
-    modal.addEventListener('cancel', (e) => { e.preventDefault(); fecharModal(false); });
+    modal.addEventListener('cancel', (e) => {
+      e.preventDefault();
+      fecharModal(false);
+    });
   });
 }
+
 
 function criarModalSenha() {
   const overlay = document.createElement('div');
   overlay.className = 'overlay-modal-escuro';
   overlay.setAttribute('aria-label', 'Acesso ao Sistema');
-
+  
   const modal = document.createElement('dialog');
   modal.className = 'modal-escuro';
   modal.setAttribute('role', 'dialog');
   modal.setAttribute('aria-modal', 'true');
   modal.style.position = 'relative';
-
+  
   modal.innerHTML = gerarHTMLModal();
-
+  
   overlay.appendChild(modal);
-
+  
   const elementos = {
     inputSenha: overlay.querySelector('#senhaInput'),
     btnCancelar: overlay.querySelector('#btnCancelarSenha'),
     btnConfirmar: overlay.querySelector('#btnConfirmarSenha'),
     erroSenha: overlay.querySelector('#erroSenha')
   };
-
+  
   return { overlay, modal, elementos };
 }
 
@@ -142,6 +147,7 @@ function mostrarErro(erroSenha, mensagem) {
 }
 
 function finalizarModal(overlay, modal, resolve, resultado) {
+  aoFecharModal();
   try { modal.close(); } catch (_) {}
   overlay.remove();
   resolve(resultado);
