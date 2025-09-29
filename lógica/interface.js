@@ -2,6 +2,31 @@
 
 import { configurarModalAcessibilidade } from './acessibilidade.js';
 
+let contadorModaisAbertos = 0;
+
+export function aoAbrirModal() {
+  if (contadorModaisAbertos === 0) {
+    document.body.style.overflow = 'hidden';
+  }
+  contadorModaisAbertos++;
+}
+
+export function aoFecharModal() {
+  if (contadorModaisAbertos > 0) {
+    contadorModaisAbertos--;
+  }
+  if (contadorModaisAbertos === 0) {
+    document.body.style.overflow = '';
+  }
+}
+
+export function anunciarParaLeitorDeTela(mensagem) {
+  const regiaoAnuncios = document.getElementById('regiao-anuncios-sr');
+  if (regiaoAnuncios) {
+    regiaoAnuncios.textContent = mensagem;
+  }
+}
+
 export const MENSAGENS = {
   clienteAdicionado: 'Cliente adicionado com sucesso!',
   clienteRemovido: 'Cliente removido com sucesso!',
@@ -14,6 +39,7 @@ export const MENSAGENS = {
   dadosImportados: 'Dados importados com sucesso!',
   erroGeral: 'Erro na operação',
   erroNomeVazio: 'Insira um nome válido',
+  erroClienteExistente: 'Cliente com este nome já existe.',
   erroCamposObrigatorios: 'Preencha todos os campos',
   erroClienteNaoSelecionado: 'Selecione um cliente antes de adicionar produtos',
   backupVazio: 'Nenhum dado para exportar',
@@ -21,6 +47,16 @@ export const MENSAGENS = {
   senhaConfigurada: 'Senha configurada com sucesso!',
   senhaRemovida: 'Proteção por senha removida'
 };
+
+export function mostrarErroCampo(elementoErro, mensagem) {
+  if (!elementoErro) return;
+  elementoErro.textContent = mensagem;
+  elementoErro.style.display = 'block';
+  setTimeout(() => {
+    elementoErro.style.display = 'none';
+    elementoErro.textContent = '';
+  }, 4000);
+}
 
 export function mostrarNotificacao(mensagem, tipo = 'info') {
   const container = document.getElementById('notificacaoContainer');
@@ -103,8 +139,14 @@ export function mostrarConfirmacao(titulo, mensagem, tipo, callbackConfirmar, ca
   
   overlay.appendChild(modal);
   document.body.appendChild(overlay);
+  aoAbrirModal();
   
-  const fecharModal = configurarModalAcessibilidade(overlay, modal);
+  const fecharModalOriginal = configurarModalAcessibilidade(overlay, modal);
+  
+  const fecharEsteModal = () => {
+    aoFecharModal();
+    fecharModalOriginal();
+  };
   
   const limparLoading = () => {
     if (buttonLoading) setButtonLoading(buttonLoading, false);
@@ -112,20 +154,20 @@ export function mostrarConfirmacao(titulo, mensagem, tipo, callbackConfirmar, ca
   
   overlay.querySelector('#confirmarCancelar').addEventListener('click', () => {
     limparLoading();
-    fecharModal();
+    fecharEsteModal();
     callbackCancelar();
   });
   
   overlay.querySelector('#confirmarOk').addEventListener('click', () => {
     limparLoading();
-    fecharModal();
+    fecharEsteModal();
     callbackConfirmar();
   });
   
   overlay.addEventListener('click', (e) => {
     if (e.target === overlay) {
       limparLoading();
-      fecharModal();
+      fecharEsteModal();
       callbackCancelar();
     }
   });

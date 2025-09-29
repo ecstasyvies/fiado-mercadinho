@@ -1,5 +1,7 @@
 # Sistema de Gestão de Fiados
 
+![Interface do sistema de gestão de fiados exibida em tela escura, com dois painéis principais: à esquerda, a seção “Gestão de Clientes”, contendo campos para adicionar e buscar clientes, além de botões roxos para exportar dados, importar dados e gerar relatórios; à direita, a seção “Registro de Compras”, com campos para descrição do produto e valor em reais, botão para registrar compra e área que mostra o total das compras registradas.](https://res.cloudinary.com/dbkobxtnj/image/upload/f_auto,q_auto,w_800,r_20/v1758981402/previa_sen8y1.png)
+
 > Sistema para gestão de fiados em estabelecimentos comerciais de pequeno porte. Permite o registro, monitoramento e liquidação de dívidas de forma totalmente offline, garantindo acessibilidade e independência de conectividade.
 
 ---

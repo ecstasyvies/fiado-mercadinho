@@ -13,7 +13,7 @@ function obterElementosFocaveis(overlay) {
 function tratarTabulacao(elementosFocaveis, e) {
   const primeiroElemento = elementosFocaveis[0];
   const ultimoElemento = elementosFocaveis[elementosFocaveis.length - 1];
-
+  
   if (e.shiftKey) {
     if (document.activeElement === primeiroElemento) {
       e.preventDefault();
@@ -31,7 +31,7 @@ export function confinarTabulacao(overlay) {
   if (!validarElemento(overlay, 'HTMLElement')) {
     return () => {};
   }
-
+  
   return (e) => {
     if (e.key === 'Tab') {
       const elementosFocaveis = obterElementosFocaveis(overlay);
@@ -73,15 +73,15 @@ export function configurarModalAcessibilidade(overlay, modal) {
   if (!validarElemento(overlay, 'HTMLElement') || !validarElemento(modal, 'HTMLElement')) {
     return;
   }
-
+  
   const elementoAnterior = document.activeElement;
   definirAtributosAcessibilidade(modal);
   const confinarTab = confinarTabulacao(overlay);
   const keydownHandler = adicionarListenerTeclado(overlay, confinarTab, () => fecharModal());
   const fecharModal = criarFecharModal(overlay, keydownHandler, elementoAnterior);
-
+  
   setTimeout(() => modal.focus(), 50);
-
+  
   return fecharModal;
 }
 

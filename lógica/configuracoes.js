@@ -1,7 +1,7 @@
 'use strict';
 
 import { senhaConfigurada, configurarSenha, removerSenha } from './seguranca.js';
-import { mostrarNotificacao, mostrarConfirmacao } from './interface.js';
+import { mostrarNotificacao, mostrarConfirmacao, aoAbrirModal, aoFecharModal } from './interface.js';
 import { configurarModalAcessibilidade } from './acessibilidade.js';
 
 function gerarSecaoSegurancaHTML() {
@@ -46,18 +46,24 @@ function criarOverlayComModal(titulo, conteudoHTML) {
   
   overlay.appendChild(modal);
   document.body.appendChild(overlay);
+  aoAbrirModal();
   
   configurarModalAcessibilidade(overlay, modal);
   
+  const fecharEsteModal = () => {
+    aoFecharModal();
+    overlay.remove();
+  };
+  
   overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) overlay.remove();
+    if (e.target === overlay) fecharEsteModal();
   });
   
-  return { overlay, modal };
+  return { overlay, modal, fecharEsteModal };
 }
 
 function mostrarConfigurarSenha(overlayOriginal) {
-  const { overlay, modal } = criarOverlayComModal('Configurar senha', `
+  const { overlay, modal, fecharEsteModal } = criarOverlayComModal('Configurar senha', `
     <div style="margin-bottom: 1.5rem; text-align: center;">
       <i class="fas fa-lock modal-icone" style="color: var(--primaria);"></i>
       <h3 class="modal-titulo">Configurar Senha</h3>
@@ -108,7 +114,7 @@ function mostrarConfigurarSenha(overlayOriginal) {
     
     try {
       configurarSenha(senha);
-      overlay.remove();
+      fecharEsteModal();
       setTimeout(() => atualizarConteudoModal(overlayOriginal), 500);
     } catch (error) {
       mostrarErro(error.message);
@@ -122,7 +128,7 @@ function mostrarConfigurarSenha(overlayOriginal) {
   inputConfirmar.addEventListener('keypress', (e) => { if (e.key === 'Enter') configurarNovaSenha(); });
   
   btnConfirmar.addEventListener('click', configurarNovaSenha);
-  btnCancelar.addEventListener('click', () => overlay.remove());
+  btnCancelar.addEventListener('click', fecharEsteModal);
 }
 
 export function mostrarConfiguracoes() {
@@ -130,7 +136,7 @@ export function mostrarConfiguracoes() {
   
   if (btnConfiguracoes) btnConfiguracoes.classList.add('ativo');
   
-  const { overlay, modal } = criarOverlayComModal('Configurações do sistema', `
+  const { overlay, modal, fecharEsteModal } = criarOverlayComModal('Configurações do sistema', `
     <div style="text-align: center; margin-bottom: 2rem;">
       <i class="fas fa-cog modal-icone" style="color: var(--primaria);"></i>
       <h3 class="modal-titulo">Configurações</h3>
@@ -146,10 +152,12 @@ export function mostrarConfiguracoes() {
   const btnConfigurarSenha = modal.querySelector('#btnConfigurarSenha');
   const btnRemoverSenha = modal.querySelector('#btnRemoverSenha');
   
-  btnFechar.addEventListener('click', () => {
-    overlay.remove();
+  const fecharPrincipal = () => {
+    fecharEsteModal();
     if (btnConfiguracoes) btnConfiguracoes.classList.remove('ativo');
-  });
+  };
+  
+  btnFechar.addEventListener('click', fecharPrincipal);
   
   if (btnConfigurarSenha) btnConfigurarSenha.addEventListener('click', () => mostrarConfigurarSenha(overlay));
   if (btnRemoverSenha) btnRemoverSenha.addEventListener('click', () => {
@@ -159,13 +167,12 @@ export function mostrarConfiguracoes() {
       'warning',
       () => {
         removerSenha();
-        overlay.remove();
-        if (btnConfiguracoes) btnConfiguracoes.classList.remove('ativo');
+        fecharPrincipal();
         setTimeout(() => atualizarConteudoModal(overlay), 1000);
       }
     );
   });
-
+  
   overlay.addEventListener('click', (e) => {
     if (e.target === overlay && btnConfiguracoes) {
       btnConfiguracoes.classList.remove('ativo');
