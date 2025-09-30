@@ -235,7 +235,7 @@ export function removerCliente() {
     const temDivida = saldoDevedor > 0;
     
     const mensagem = temDivida ?
-      `ATENÇÃO: ${nomeClienteParaRemover} possui uma dívida de ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(saldoDevedor)}!\nDeseja realmente remover?` :
+      `ATENÇÃO: ${nomeClienteParaRemover} possui uma dívida de ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(saldoDevedor)}! Deseja realmente remover?` :
       `Remover ${nomeClienteParaRemover}?`;
     
     mostrarConfirmacao(
