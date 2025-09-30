@@ -129,18 +129,26 @@ export function importarDados() {
               }
               
               const reqUpdate = armazenamento.put(clienteAtualizado);
-              reqUpdate.onsuccess = () => { importados++;
-                finalizar(); };
-              reqUpdate.onerror = () => { erros++;
-                finalizar(); };
+              reqUpdate.onsuccess = () => {
+                importados++;
+                finalizar();
+              };
+              reqUpdate.onerror = () => {
+                erros++;
+                finalizar();
+              };
             } else {
               const clienteNovo = { ...cliente };
               delete clienteNovo.id;
               const reqAdd = armazenamento.add(clienteNovo);
-              reqAdd.onsuccess = () => { importados++;
-                finalizar(); };
-              reqAdd.onerror = () => { erros++;
-                finalizar(); };
+              reqAdd.onsuccess = () => {
+                importados++;
+                finalizar();
+              };
+              reqAdd.onerror = () => {
+                erros++;
+                finalizar();
+              };
             }
           });
           
