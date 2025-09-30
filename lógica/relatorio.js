@@ -128,9 +128,9 @@ function criarElementoModal() {
 function gerarHTMLRelatorio(stats) {
   return `
     <div style="text-align: center; margin-bottom: 2rem;">
-      <i class="fas fa-chart-bar modal-icone" style="color: var(--primaria);"></i>
+      <i class="fas fa-chart-bar modal-icone" style="color: var(--marca-padrao);"></i>
       <h3 class="modal-titulo">Relatório de Fiados</h3>
-      <p style="color: var(--cinza-claro-azulado);">Resumo geral dos dados do sistema</p>
+      <p style="color: var(--texto-corpo);">Resumo geral dos dados do sistema</p>
     </div>
     ${gerarEstatisticasHTML(stats)}
     ${stats.topClientes.length > 0 ? gerarTopClientesHTML(stats.topClientes) : ''}
@@ -142,23 +142,43 @@ function gerarHTMLRelatorio(stats) {
 
 function gerarEstatisticasHTML(stats) {
   const formatarValor = (valor, cor, descricao, tipo = 'numero') => {
-    const valorFormatado = tipo === 'moeda' ?
-      new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor) :
-      valor;
+    const valorFormatado = tipo === 'moeda'
+      ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor)
+      : valor;
+
     return `
-      <div style="background: var(--clara); padding: 1rem; border-radius: var(--raio-pequeno); text-align: center; max-width: 200px; word-break: break-word; overflow-wrap: anywhere;">
-        <div style="font-size: 2rem; font-weight: bold; color: ${cor}; text-shadow: 0 0 1px rgba(0, 0, 0, 0.3);">${valorFormatado}</div>
-        <div style="color: var(--cinza-claro-azulado); font-size: 0.9rem;">${descricao}</div>
+      <div style="
+        background: var(--fundo-superficie);
+        padding: 1rem;
+        border: 1px solid var(--borda-sutil);
+        border-radius: var(--raio-borda-m);
+        text-align: center;
+        word-break: break-word; 
+        overflow-wrap: anywhere;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        box-sizing: border-box;
+      ">
+        <div style="font-size: 2rem; font-weight: bold; color: ${cor}; text-shadow: 0 0 1px rgba(0,0,0,0.3);">
+          ${valorFormatado}
+        </div>
+        <div style="color: var(--texto-corpo); font-size: 0.9rem;">
+          ${descricao}
+        </div>
       </div>
     `;
   };
-  
+
   return `
-    <div class="modal-estatisticas" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
-      ${formatarValor(stats.totalDividas, 'var(--valor-monetario)', 'Total em Fiados', 'moeda')}
-      ${formatarValor(stats.totalClientes, 'var(--sucesso)', 'Total de Clientes', 'numero')}
-      ${formatarValor(stats.clientesComDivida, 'var(--alerta)', 'Com Dívidas', 'numero')}
-      ${formatarValor(stats.totalProdutos, 'var(--erro)', 'Itens Fiados', 'numero')}
+    <div class="modal-estatisticas"
+         style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 2rem; align-items: stretch; justify-items: stretch;">
+      ${formatarValor(stats.totalDividas, 'var(--texto-corpo)', 'Total em Fiados', 'moeda')}
+      ${formatarValor(stats.totalClientes, 'var(--retorno-sucesso)', 'Total de Clientes', 'numero')}
+      ${formatarValor(stats.clientesComDivida, 'var(--retorno-alerta)', 'Com Dívidas', 'numero')}
+      ${formatarValor(stats.totalProdutos, 'var(--retorno-perigo)', 'Itens Fiados', 'numero')}
     </div>
   `;
 }
@@ -166,8 +186,8 @@ function gerarEstatisticasHTML(stats) {
 function gerarTopClientesHTML(topClientes) {
   return `
     <div style="margin-bottom: 1rem;">
-      <h4 style="color: #ffffff; margin-bottom: 1rem;">Principais Clientes em Dívida</h4>
-      <div style="background: var(--clara); border-radius: var(--raio-pequeno); overflow: hidden;">
+      <h4 style="color: var(--texto-titulo); margin-bottom: 1rem;">Principais Clientes em Dívida</h4>
+      <div style="background: var(--fundo-superficie); border-radius: var(--raio-borda-m); border: 1px solid var(--borda-sutil); overflow: hidden;">
         ${topClientes.map((cliente, index) => gerarClienteHTML(cliente, index)).join('')}
       </div>
     </div>
@@ -176,13 +196,13 @@ function gerarTopClientesHTML(topClientes) {
 
 function gerarClienteHTML(cliente, index) {
   return `
-    <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; ${index === 4 ? '' : 'border-bottom: 1px solid var(--cinza-claro);'}">
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; ${index === 4 ? '' : 'border-bottom: 1px solid var(--borda-sutil);'}">
       <div>
-        <div style="font-weight: 600; color: var(--escura);">${index + 1}. ${cliente.nome}</div>
-        <div style="font-size: 0.85rem; color: #adb5bd;">${cliente.produtos.length} itens</div>
+        <div style="font-weight: 600; color: var(--texto-corpo);">${index + 1}. ${cliente.nome}</div>
+        <div style="font-size: 0.85rem; font-weight: 300; color: var(--texto-corpo);">${cliente.produtos.length} itens</div>
       </div>
       <div style="text-align: right;">
-        <div style="font-weight: 600; color: var(--primaria);">${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(cliente.dividaPendente)}</div>
+        <div style="font-weight: 600; color: var(--marca-padrao);">${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(cliente.dividaPendente)}</div>
       </div>
     </div>
   `;
