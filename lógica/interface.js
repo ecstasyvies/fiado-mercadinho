@@ -110,26 +110,26 @@ export function mostrarConfirmacao(titulo, mensagem, tipo, callbackConfirmar, ca
   switch (tipo) {
     case 'error':
       icone = 'times-circle';
-      cor = 'var(--erro)';
+      cor = 'var(--retorno-perigo)';
       break;
     case 'warning':
       icone = 'exclamation-triangle';
-      cor = 'var(--alerta)';
+      cor = 'var(--retorno-alerta)';
       break;
     case 'question':
       icone = 'question-circle';
-      cor = 'var(--primaria)';
+      cor = 'var(--marca-padrao)';
       break;
     default:
       icone = 'info-circle';
-      cor = 'var(--primaria)';
+      cor = 'var(--marca-padrao)';
   }
   
   modal.innerHTML = `
     <div style="text-align: center; margin-bottom: 1.5rem;">
       <i class="fas fa-${icone} modal-icone" style="color: ${cor};"></i>
       <h3 class="modal-titulo">${titulo}</h3>
-      <p style="color: #adb5bd;">${mensagem.replace(/\n/g, '<br>')}</p>
+      <p style="color: var(--texto-corpo);">${mensagem.replace(/\n/g, '<br>')}</p>
     </div>
     <div style="display: flex; gap: 1rem; justify-content: center;">
       <button id="confirmarCancelar" class="modal-botao alerta" aria-label="Cancelar ação">Cancelar</button>
