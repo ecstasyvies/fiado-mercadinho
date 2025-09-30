@@ -7,12 +7,12 @@ import { configurarModalAcessibilidade } from './acessibilidade.js';
 function gerarSecaoSegurancaHTML() {
   return `
     <div id="secaoSeguranca" style="margin-bottom: 2rem;">
-      <h4 style="color: var(--escura); margin-bottom: 1rem;">Segurança</h4>
-      <div style="background: var(--clara); padding: 1rem; border-radius: var(--raio-pequeno);">
+      <h4 style="color: var(--texto-corpo); margin-bottom: 1rem; margin-left: 1rem;">Segurança</h4>
+      <div style="background: var(--fundo-superficie); padding: 1rem; border: 1px solid var(--borda-sutil); border-radius: var(--raio-borda-m);">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
           <div>
-            <div style="font-weight: 600; color: var(--escura);">Proteção por Senha</div>
-            <div style="font-size: 0.85rem; color: ${senhaConfigurada() ? 'var(--sucesso)' : 'var(--alerta)'};">
+            <div style="font-weight: 600; color: var(--texto-corpo);">Proteção por Senha</div>
+            <div style="font-size: 0.85rem; color: ${senhaConfigurada() ? 'var(--retorno-sucesso)' : 'var(--retorno-alerta)'};">
               ${senhaConfigurada() ? 'Ativada' : 'Desativada'}
             </div>
           </div>
@@ -23,7 +23,7 @@ function gerarSecaoSegurancaHTML() {
             }
           </div>
         </div>
-        <div style="font-size: 0.8rem; color: #adb5bd;">
+        <div style="font-size: 0.8rem; color: var(--texto-corpo);">
           ${senhaConfigurada()
             ? 'O sistema encontra-se protegido por senha. Caso deseje desativar essa proteção, é possível selecionar a opção “Remover”.'
             : 'O sistema encontra-se desprotegido por senha. Para habilitar a proteção, selecione a opção “Ativar” e configure uma senha. Recomenda-se registrar ou memorizar a senha escolhida, uma vez que o acesso ao sistema dependerá exclusivamente dela.'
@@ -65,9 +65,9 @@ function criarOverlayComModal(titulo, conteudoHTML) {
 function mostrarConfigurarSenha(overlayOriginal) {
   const { overlay, modal, fecharEsteModal } = criarOverlayComModal('Configurar senha', `
     <div style="margin-bottom: 1.5rem; text-align: center;">
-      <i class="fas fa-lock modal-icone" style="color: var(--primaria);"></i>
+      <i class="fas fa-lock modal-icone" style="color: var(--marca-padrao);"></i>
       <h3 class="modal-titulo">Configurar Senha</h3>
-      <p style="color: #adb5bd;">Digite uma senha para proteger o sistema</p>
+      <p style="color: var(--texto-corpo);">Digite uma senha para proteger o sistema</p>
     </div>
     <div style="margin-bottom: 1.5rem;">
       <input type="password" id="novaSenha" class="modal-input" placeholder="Digite uma senha (mín. 4 caracteres)" aria-label="Nova senha">
@@ -138,9 +138,9 @@ export function mostrarConfiguracoes() {
   
   const { overlay, modal, fecharEsteModal } = criarOverlayComModal('Configurações do sistema', `
     <div style="text-align: center; margin-bottom: 2rem;">
-      <i class="fas fa-cog modal-icone" style="color: var(--primaria);"></i>
+      <i class="fas fa-cog modal-icone" style="color: var(--marca-padrao);"></i>
       <h3 class="modal-titulo">Configurações</h3>
-      <p style="color: #adb5bd;">Gerenciar configurações do sistema</p>
+      <p style="color: var(--texto-corpo);">Gerenciar configurações do sistema</p>
     </div>
     ${gerarSecaoSegurancaHTML()}
     <div style="text-align: center;">
