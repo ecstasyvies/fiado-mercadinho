@@ -72,9 +72,9 @@ function carregarSugestoesProdutos(clientes) {
           typeof produto.preco === "number"
         ) {
           const chave = normalizarTexto(produto.nome);
-          const data = produto.dataCompra
-            ? new Date(produto.dataCompra).getTime()
-            : 0;
+          const data = produto.dataCompra ?
+            new Date(produto.dataCompra).getTime() :
+            0;
           const existente = mapaProdutosUltimoPreco.get(chave);
           if (!existente || (data && data > existente.dataMs)) {
             mapaProdutosUltimoPreco.set(chave, {
@@ -98,14 +98,14 @@ function carregarSugestoes() {
     const transacao = db.transaction(["clientes"], "readonly");
     const armazenamento = transacao.objectStore("clientes");
     const requisicao = armazenamento.getAll();
-    requisicao.onsuccess = function (e) {
+    requisicao.onsuccess = function(e) {
       const clientes = e.target.result;
       carregarSugestoesClientes(clientes);
       carregarSugestoesProdutos(clientes);
       dbCarregado = true;
       resolve();
     };
-    requisicao.onerror = function (e) {
+    requisicao.onerror = function(e) {
       reject(e.target.error);
     };
   });
@@ -157,7 +157,7 @@ function processarSelecaoCliente(input, suggestionsDiv, clienteId, nome) {
           campoProduto.getBoundingClientRect().top + window.scrollY;
         const offset = window.innerHeight * 0.25;
         const destino = posicaoElemento - offset;
-
+        
         window.scrollTo({ top: destino, behavior: "smooth" });
         campoProduto.focus({ preventScroll: true });
       }
@@ -187,7 +187,7 @@ function processarSelecaoProduto(input, suggestionsDiv) {
 
 function configurarEventosSugestoes(input, suggestionsDiv, tipo) {
   let selectedIndex = -1;
-
+  
   function updateSelection() {
     const suggestions = suggestionsDiv.querySelectorAll(
       ".sugestao-autocompletar"
@@ -205,13 +205,13 @@ function configurarEventosSugestoes(input, suggestionsDiv, tipo) {
       input.removeAttribute("aria-activedescendant");
     }
   }
-
+  
   input.addEventListener("keydown", (e) => {
     const suggestions = suggestionsDiv.querySelectorAll(
       ".sugestao-autocompletar"
     );
     if (suggestions.length === 0) return;
-
+    
     if (e.key === "ArrowDown") {
       e.preventDefault();
       selectedIndex = Math.min(selectedIndex + 1, suggestions.length - 1);
@@ -231,7 +231,7 @@ function configurarEventosSugestoes(input, suggestionsDiv, tipo) {
       selectedIndex = -1;
     }
   });
-
+  
   input.setAttribute("aria-autocomplete", "list");
   input.setAttribute("aria-haspopup", "listbox");
   input.setAttribute("aria-expanded", "false");
@@ -253,48 +253,48 @@ function mostrarSugestoesAutocomplete(
     input.removeAttribute("aria-activedescendant");
     return;
   }
-
+  
   let filtradas;
   const ehCampoCliente = tipo.toLowerCase() === "cliente";
-
+  
   if (ehCampoCliente) {
     const comecamComTermo = sugestoes
       .filter((c) => c.toLowerCase().startsWith(termoNormalizado))
       .sort((a, b) => a.localeCompare(b));
-
+    
     const contemNoMeio = sugestoes
       .filter(
         (c) =>
-          !c.toLowerCase().startsWith(termoNormalizado) &&
-          c.toLowerCase().includes(" " + termoNormalizado)
+        !c.toLowerCase().startsWith(termoNormalizado) &&
+        c.toLowerCase().includes(" " + termoNormalizado)
       )
       .sort((a, b) => a.localeCompare(b));
-
+    
     filtradas = [...comecamComTermo, ...contemNoMeio];
   } else {
     const comecamComTermo = sugestoes
       .filter((item) => item && item.toLowerCase().startsWith(termoNormalizado))
       .sort((a, b) => a.localeCompare(b));
-
+    
     const contemTermo = sugestoes
       .filter(
         (item) =>
-          item &&
-          !item.toLowerCase().startsWith(termoNormalizado) &&
-          item.toLowerCase().includes(termoNormalizado)
+        item &&
+        !item.toLowerCase().startsWith(termoNormalizado) &&
+        item.toLowerCase().includes(termoNormalizado)
       )
       .sort((a, b) => a.localeCompare(b));
-
+    
     filtradas = [...comecamComTermo, ...contemTermo];
   }
-
+  
   const slicedFiltradas = filtradas.slice(0, 5);
-  const matchExato = ehCampoCliente
-    ? mapaClientesPorNome.get(normalizarTexto(termoStr))
-    : null;
+  const matchExato = ehCampoCliente ?
+    mapaClientesPorNome.get(normalizarTexto(termoStr)) :
+    null;
   const listaRenderizar = [];
   const labelTipoPadrao = ehCampoCliente ? "Cliente cadastrado" : tipo;
-
+  
   if (matchExato) {
     listaRenderizar.push({
       value: matchExato.nome,
@@ -302,7 +302,7 @@ function mostrarSugestoesAutocomplete(
       clienteId: String(matchExato.id),
     });
   }
-
+  
   slicedFiltradas
     .filter(
       (n) => !matchExato || n.toLowerCase() !== matchExato.nome.toLowerCase()
@@ -321,14 +321,14 @@ function mostrarSugestoesAutocomplete(
       }
       listaRenderizar.push({ value: n, tipo: labelTipoPadrao });
     });
-
+  
   if (listaRenderizar.length === 0) {
     suggestionsDiv.style.display = "none";
     input.setAttribute("aria-expanded", "false");
     input.removeAttribute("aria-activedescendant");
     return;
   }
-
+  
   preencherSugestoes(input, suggestionsDiv, listaRenderizar, tipo);
   suggestionsDiv
     .querySelectorAll(".sugestao-autocompletar")
@@ -359,7 +359,7 @@ function mostrarSugestoesAutocomplete(
 
 function configurarAutocompletarCampo(input, sugestoes, tipo) {
   const { container, suggestionsDiv } = criarContainerAutocomplete(input);
-
+  
   input.addEventListener("input", (e) =>
     mostrarSugestoesAutocomplete(
       input,
@@ -369,9 +369,9 @@ function configurarAutocompletarCampo(input, sugestoes, tipo) {
       e.target.value
     )
   );
-
+  
   configurarEventosSugestoes(input, suggestionsDiv, tipo);
-
+  
   input.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       suggestionsDiv.style.display = "none";
@@ -379,7 +379,7 @@ function configurarAutocompletarCampo(input, sugestoes, tipo) {
       input.removeAttribute("aria-activedescendant");
     }
   });
-
+  
   document.addEventListener("click", (e) => {
     if (!container.contains(e.target)) {
       suggestionsDiv.style.display = "none";
@@ -444,14 +444,14 @@ function configurarEventosTeclado() {
         document.getElementById("precoProduto").focus();
       }
     });
-
+  
   document.getElementById("btnLiquidar").addEventListener("keydown", (e) => {
     if (e.key === "Tab" && e.shiftKey) {
       e.preventDefault();
       document.getElementById("btnAdicionarProduto").focus();
     }
   });
-
+  
   document
     .getElementById("btnRemoverCliente")
     .addEventListener("keydown", (e) => {
@@ -460,7 +460,7 @@ function configurarEventosTeclado() {
         document.getElementById("btnLiquidar").focus();
       }
     });
-
+  
   document
     .getElementById("btnPagamentoParcial")
     .addEventListener("keydown", (e) => {
@@ -469,7 +469,7 @@ function configurarEventosTeclado() {
         document.getElementById("btnRemoverCliente").focus();
       }
     });
-
+  
   document
     .getElementById("btnAdicionarCliente")
     .addEventListener("keydown", (e) => {
@@ -478,14 +478,14 @@ function configurarEventosTeclado() {
         document.getElementById("nomeCliente").focus();
       }
     });
-
+  
   document.getElementById("nomeCliente").addEventListener("keydown", (e) => {
     if (e.key === "Tab" && e.shiftKey) {
       e.preventDefault();
       document.getElementById("btnConfiguracoes").focus();
     }
   });
-
+  
   document.getElementById("buscaCliente").addEventListener("keydown", (e) => {
     if (e.key === "Tab" && !e.shiftKey) {
       const primeiroCliente = document.querySelector(
@@ -500,7 +500,7 @@ function configurarEventosTeclado() {
       document.getElementById("btnAdicionarCliente").focus();
     }
   });
-
+  
   document.getElementById("nomeProduto").addEventListener("keydown", (e) => {
     if (e.key === "Tab" && e.shiftKey) {
       const ultimoCliente = document.querySelector(
@@ -512,7 +512,7 @@ function configurarEventosTeclado() {
       }
     }
   });
-
+  
   document.getElementById("btnBackup").addEventListener("keydown", (e) => {
     if (e.key === "Tab" && e.shiftKey) {
       const ultimoCliente = document.querySelector(
@@ -524,21 +524,21 @@ function configurarEventosTeclado() {
       }
     }
   });
-
+  
   document.getElementById("btnImportar").addEventListener("keydown", (e) => {
     if (e.key === "Tab" && e.shiftKey) {
       e.preventDefault();
       document.getElementById("btnBackup").focus();
     }
   });
-
+  
   document.getElementById("btnRelatorio").addEventListener("keydown", (e) => {
     if (e.key === "Tab" && e.shiftKey) {
       e.preventDefault();
       document.getElementById("btnImportar").focus();
     }
   });
-
+  
   document
     .getElementById("btnConfiguracoes")
     .addEventListener("keydown", (e) => {
@@ -555,9 +555,9 @@ function configurarEventosEnter() {
       e.preventDefault();
       const inputBusca = document.getElementById("buscaCliente");
       const termoBusca = inputBusca.value.trim();
-
+      
       inputBusca.blur();
-
+      
       if (termoBusca) {
         buscarClientes().then(() => {
           const primeiroCliente = document.querySelector(
@@ -571,7 +571,7 @@ function configurarEventosEnter() {
       }
     }
   });
-
+  
   document.getElementById("nomeCliente").addEventListener("keypress", (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -583,13 +583,13 @@ function configurarEventosEnter() {
       document.getElementById("btnAdicionarCliente").dispatchEvent(clickEvent);
     }
   });
-
+  
   document.getElementById("nomeProduto").addEventListener("keypress", (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
-
+      
       const isMobile = verificarDispositivoMovel();
-
+      
       if (isMobile) {
         const clickEvent = new MouseEvent("click", {
           bubbles: true,
@@ -608,7 +608,7 @@ function configurarEventosEnter() {
       }
     }
   });
-
+  
   document.getElementById("precoProduto").addEventListener("keypress", (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -626,11 +626,11 @@ function configurarValidacaoInputs() {
   document.getElementById("nomeCliente").addEventListener("input", () => {
     document.getElementById("erroCliente").style.display = "none";
   });
-
+  
   document.getElementById("nomeProduto").addEventListener("input", () => {
     document.getElementById("erroProduto").style.display = "none";
   });
-
+  
   document.getElementById("precoProduto").addEventListener("input", () => {
     document.getElementById("erroProduto").style.display = "none";
   });
@@ -715,7 +715,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 <div style="max-width: 400px; padding: 1rem;">
                     <h2 style="margin: 0 auto; text-align: center; display: block; margin-bottom: 1rem; overflow-wrap: break-word; hyphens: auto;">Acesso Negado</h2>
                     <p style="margin-bottom: 1rem; overflow-wrap: break-word; hyphens: auto;">Você precisa fornecer uma senha válida.</p>
-                    <button onclick="location.reload()" style="padding: 0.5rem 1rem; background: var(--primaria); color: white; border: none; border-radius: var(--raio-pequeno); cursor: pointer;">
+                    <button onclick="location.reload()" style="padding: 0.5rem 1rem; background: var(--marca-padrao); color: white; border: none; border-radius: var(--raio-borda-m); cursor: pointer;">
                         Tentar Novamente
                     </button>
                 </div>
@@ -723,7 +723,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         `;
     return;
   }
-
+  
   configurarEventosBotoes();
   configurarEventosTeclado();
   configurarEventosEnter();
@@ -731,7 +731,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   configurarPrecoProdutoInput();
   configurarEventosMobile();
   configurarBuscaCliente();
-
+  
   abrirBancoDados();
   setTimeout(tentarCarregarSugestoes, 500);
 });
