@@ -108,9 +108,9 @@ function criarModalSenha() {
 function gerarHTMLModal() {
   return `
     <div style="margin-bottom: 1.5rem; text-align: center;">
-      <i class="fas fa-lock modal-icone" style="color: var(--primaria);"></i>
+      <i class="fas fa-lock modal-icone" style="color: var(--marca-padrao);"></i>
       <h3 class="modal-titulo">Acesso ao Sistema</h3>
-      <p style="color: #adb5bd; margin-bottom: 1rem;">
+      <p style="color: var(--texto-corpo); margin-bottom: 1rem;">
         ${senhaConfigurada() ? 'Digite sua senha para acessar o sistema' : 'Configure uma senha para proteger o sistema'}
       </p>
     </div>
