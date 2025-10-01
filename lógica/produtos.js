@@ -44,6 +44,7 @@ function criarNovoProduto(nomeProduto, precoValidado) {
     nome: nomeProduto,
     preco: precoValidado,
     dataCompra: new Date().toISOString(),
+    pago: 0,
   };
 }
 
@@ -139,6 +140,19 @@ function removerProdutoDoCliente(produtoId) {
     );
     
     if (indiceParaRemover !== -1) {
+      const produto = cliente.produtos[indiceParaRemover];
+      const pagoNoProduto = Number(produto.pago || 0);
+      if (pagoNoProduto > 0) {
+        cliente.valorPago = Math.max(0, (cliente.valorPago || 0) - pagoNoProduto);
+        cliente.pagamentos = cliente.pagamentos || [];
+        cliente.pagamentos.push({
+          valor: -pagoNoProduto,
+          data: new Date().toISOString(),
+          tipo: "estorno_remocao_produto",
+          produtoDataCompra: produto.dataCompra,
+        });
+      }
+      
       cliente.produtos.splice(indiceParaRemover, 1);
       const requisicaoAtualizar = armazenamento.put(cliente);
       
@@ -150,19 +164,14 @@ function removerProdutoDoCliente(produtoId) {
         const valorPago = cliente.valorPago || 0;
         const saldoDevedor = totalAposRemocao - valorPago;
         
-        if (
-          saldoDevedor <= 0 &&
-          (cliente.produtos.length > 0 || valorPago > 0)
-        ) {
+        if (saldoDevedor <= 0) {
           cliente.produtos = [];
           cliente.valorPago = 0;
-          cliente.pagamentos = [];
-          
           const requisicaoLiquidacao = armazenamento.put(cliente);
           requisicaoLiquidacao.onsuccess = function() {
             listarProdutos(idClienteSelecionado);
             mostrarNotificacao(
-              "Dívida liquidada! O saldo ficou positivo após a remoção do item.",
+              "Dívida liquidada! O saldo foi reconciliado após a remoção do item.",
               "sucesso"
             );
           };
@@ -213,26 +222,42 @@ export function removerProduto(produtoId) {
 function criarElementoProduto(produto, index) {
   const item = document.createElement("li");
   item.className = "item-produto";
+  const pago = Number(produto.pago || 0);
+  const preco = Number(produto.preco || 0);
+  let pagoTexto = "";
+  if (pago > 0 && pago < preco) {
+    const pendente = Math.max(0, preco - pago);
+    pagoTexto = `
+      <div style="font-size:0.85rem;color:var(--retorno-sucesso)">Pago: ${new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(pago)}</div>
+      <div style="font-size:0.85rem;color:var(--retorno-alerta)">Pendente: ${new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(pendente)}</div>
+    `;
+    item.classList.add('produto-parcial');
+  } else if (pago >= preco && preco > 0) {
+    pagoTexto = `<div style="font-size:0.85rem;color:var(--retorno-sucesso)">Quitado</div>`;
+    item.classList.add('produto-quitado');
+  } else if (pago > 0) {
+    pagoTexto = `<div style="font-size:0.85rem;color:var(--retorno-sucesso)">Pago: ${new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(pago)}</div>`;
+  }
   
   item.innerHTML = `
-        <div class="produto-info">
-            <div class="produto-nome">${produto.nome}</div>
-            <div class="produto-detalhes">${new Date(
-              produto.dataCompra
-            ).toLocaleDateString("pt-BR")}</div>
-        </div>
-        <div class="produto-valor">
-         ${new Intl.NumberFormat("pt-BR", {
-           style: "currency",
-           currency: "BRL",
-         }).format(produto.preco)}
-        </div>
-        <div class="acoes-produto">
-            <button class="btn-acao btn-perigo" title="Remover produto">
-                <i class="fas fa-trash-alt"></i>
-            </button>
-        </div>
-    `;
+    <div class="produto-info">
+      <div class="produto-nome">${produto.nome}</div>
+      <div class="produto-detalhes">${new Date(
+        produto.dataCompra
+      ).toLocaleDateString("pt-BR")} ${pagoTexto}</div>
+    </div>
+    <div class="produto-valor">
+      ${new Intl.NumberFormat("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      }).format(produto.preco)}
+    </div>
+    <div class="acoes-produto">
+      <button class="btn-acao btn-perigo" title="Remover produto">
+        <i class="fas fa-trash-alt"></i>
+      </button>
+    </div>
+  `;
   
   const btnRemover = item.querySelector(".btn-acao.btn-perigo");
   btnRemover.addEventListener("click", () =>
@@ -261,16 +286,16 @@ function formatarTextoTotal(totalPago, totalPendente) {
   const totalPendenteTexto =
     totalPendente > 0 && totalPago > 0 ?
     `Pendente: ${new Intl.NumberFormat("pt-BR", {
-          style: "currency",
-          currency: "BRL",
-        }).format(totalPendente)}` :
+      style: "currency",
+      currency: "BRL",
+    }).format(totalPendente)}` :
     "";
   const totalPagoTexto =
     totalPago > 0 ?
     `Pago: ${new Intl.NumberFormat("pt-BR", {
-          style: "currency",
-          currency: "BRL",
-        }).format(totalPago)}` :
+      style: "currency",
+      currency: "BRL",
+    }).format(totalPago)}` :
     "";
   
   return { totalPagoTexto, totalPendenteTexto };
@@ -338,23 +363,23 @@ export function listarProdutos(idCliente) {
       totalPago > 0 && totalPendente > 0 ? "Montante:" : "Total:";
     
     document.getElementById("totalCompra").innerHTML = `
-            <div>${rotuloTotal} <span class="total-valor">
-                ${new Intl.NumberFormat("pt-BR", {
-                  style: "currency",
-                  currency: "BRL",
-                }).format(total)}
-            </span></div>
-            ${
-              totalPagoTexto
-                ? `<div style="font-size: 0.9rem; color: var(--retorno-sucesso);">${totalPagoTexto}</div>`
-                : ""
-            }
-            ${
-              totalPendenteTexto
-                ? `<div style="font-size: 0.9rem; color: var(--retorno-alerta);">${totalPendenteTexto}</div>`
-                : ""
-            }
-        `;
+      <div>${rotuloTotal} <span class="total-valor">
+        ${new Intl.NumberFormat("pt-BR", {
+          style: "currency",
+          currency: "BRL",
+        }).format(total)}
+      </span></div>
+      ${
+        totalPagoTexto
+          ? `<div style="font-size: 0.9rem; color: var(--retorno-sucesso);">${totalPagoTexto}</div>`
+          : ""
+      }
+      ${
+        totalPendenteTexto
+          ? `<div style="font-size: 0.9rem; color: var(--retorno-alerta);">${totalPendenteTexto}</div>`
+          : ""
+      }
+    `;
   };
   
   requisicao.onerror = function(e) {
@@ -377,29 +402,29 @@ function criarModalPagamentoParcial(valorPendente) {
   modal.tabIndex = -1;
   
   modal.innerHTML = `
-        <div style="text-align: center; margin-bottom: 1.5rem;">
-            <i class="fas fa-money-bill-wave modal-icone" style="color: var(--retorno-alerta);"></i>
-            <h3 class="modal-titulo">Pagamento Parcial</h3>
-            <p style="color: var(--texto-corpo);">Cliente em questão: ${nomeClienteSelecionado}</p>
-            <p style="color: var(--texto-corpo);">
-                Valor pendente: ${new Intl.NumberFormat("pt-BR", {
-                  style: "currency",
-                  currency: "BRL",
-                }).format(valorPendente)}
-            </p>
-        </div>
-        <div style="margin-bottom: 1.5rem;">
-            <label for="valorPagamento" class="rotulo">Valor do Pagamento (R$)</label>
-            <input type="number" id="valorPagamento" class="modal-input" 
-                   placeholder="0,00" step="0.01" min="0.01" max="${valorPendente}"
-                   aria-label="Valor do pagamento">
-            <div id="erroPagamento" class="modal-erro" style="display: none;"></div>
-        </div>
-        <div style="display: flex; gap: 1rem; justify-content: center;">
-            <button id="cancelarPagamento" class="modal-botao alerta">Cancelar</button>
-            <button id="confirmarPagamento" class="modal-botao">Confirmar</button>
-        </div>
-    `;
+    <div style="text-align: center; margin-bottom: 1.5rem;">
+      <i class="fas fa-money-bill-wave modal-icone" style="color: var(--retorno-alerta);"></i>
+      <h3 class="modal-titulo">Pagamento Parcial</h3>
+      <p style="color: var(--texto-corpo);">Cliente em questão: ${nomeClienteSelecionado}</p>
+      <p style="color: var(--texto-corpo);">
+        Valor pendente: ${new Intl.NumberFormat("pt-BR", {
+          style: "currency",
+          currency: "BRL",
+        }).format(valorPendente)}
+      </p>
+    </div>
+    <div style="margin-bottom: 1.5rem;">
+      <label for="valorPagamento" class="rotulo">Valor do Pagamento (R$)</label>
+      <input type="number" id="valorPagamento" class="modal-input" 
+             placeholder="0,00" step="0.01" min="0.01" max="${valorPendente}"
+             aria-label="Valor do pagamento">
+      <div id="erroPagamento" class="modal-erro" style="display: none;"></div>
+    </div>
+    <div style="display: flex; gap: 1rem; justify-content: center;">
+      <button id="cancelarPagamento" class="modal-botao alerta">Cancelar</button>
+      <button id="confirmarPagamento" class="modal-botao">Confirmar</button>
+    </div>
+  `;
   
   overlay.appendChild(modal);
   document.body.appendChild(overlay);
@@ -477,39 +502,42 @@ function configurarEventosModalPagamento(overlay, valorPendente, resetButton) {
         return;
       }
       
-      clienteAtual.valorPago = (clienteAtual.valorPago || 0) + valor;
+      let restante = valor;
+      const aplicacoes = [];
+      clienteAtual.produtos = clienteAtual.produtos || [];
+      
+      clienteAtual.produtos.sort((a,b) => new Date(a.dataCompra) - new Date(b.dataCompra));
+      for (let p of clienteAtual.produtos) {
+        const restanteProduto = Math.max(0, Number(p.preco) - Number(p.pago || 0));
+        if (restanteProduto <= 0) continue;
+        const aplicar = Math.min(restanteProduto, restante);
+        if (aplicar > 0) {
+          p.pago = (Number(p.pago) || 0) + aplicar;
+          aplicacoes.push({ produtoDataCompra: p.dataCompra, valor: aplicar });
+          restante -= aplicar;
+        }
+        if (restante <= 0) break;
+      }
+      
+      const aplicado = valor - restante;
+      clienteAtual.valorPago = (clienteAtual.valorPago || 0) + aplicado;
       clienteAtual.pagamentos = clienteAtual.pagamentos || [];
       clienteAtual.pagamentos.push({
-        valor: valor,
+        valor: aplicado,
         data: new Date().toISOString(),
+        aplicacoes
       });
-      
-      const totalProdutos = clienteAtual.produtos.reduce(
-        (sum, p) => sum + Number(p.preco),
-        0
-      );
-      const saldoFinal = totalProdutos - clienteAtual.valorPago;
-      
-      let mensagemNotificacao = `Pagamento de ${new Intl.NumberFormat("pt-BR", {
-        style: "currency",
-        currency: "BRL",
-      }).format(valor)} registrado com sucesso!`;
-      
-      if (saldoFinal <= 0) {
-        clienteAtual.produtos = [];
-        clienteAtual.valorPago = 0;
-        clienteAtual.pagamentos = [];
-        mensagemNotificacao = `Dívida liquidada com sucesso! Valor pago: ${new Intl.NumberFormat(
-          "pt-BR",
-          { style: "currency", currency: "BRL" }
-        ).format(valor)}`;
-      }
       
       const requisicaoAtualizar = armazenamentoRW.put(clienteAtual);
       
       requisicaoAtualizar.onsuccess = function() {
         listarProdutos(idClienteSelecionado);
-        mostrarNotificacao(mensagemNotificacao, "sucesso");
+        mostrarNotificacao(
+          aplicado > 0
+            ? `${new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(aplicado)} registrado com sucesso!`
+            : "Nenhuma aplicação realizada",
+          "sucesso"
+        );
         fecharEresetar();
       };
       
@@ -621,9 +649,18 @@ function executarLiquidacaoDivida(quantidadeDividas) {
       mostrarNotificacao("Cliente não encontrado", "erro");
       return;
     }
+    
+    cliente.pagamentos = cliente.pagamentos || [];
+    const pagoAtual = cliente.valorPago || 0;
+    cliente.pagamentos.push({
+      valor: pagoAtual,
+      data: new Date().toISOString(),
+      tipo: 'liquidacao',
+      quantidadeProdutos: quantidadeDividas,
+    });
+    
     cliente.produtos = [];
     cliente.valorPago = 0;
-    cliente.pagamentos = [];
     
     const requisicaoAtualizar = armazenamento.put(cliente);
     
