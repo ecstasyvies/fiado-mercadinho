@@ -23,7 +23,7 @@ import {
 } from "./produtos.js";
 import { mostrarPromptSenha } from "./seguranca.js";
 import { mostrarRelatorio } from "./relatorio.js";
-import { mostrarConfiguracoes } from "./configuracoes.js";
+import { mostrarConfiguracoes, aplicarTemaSalvo } from "./configuracoes.js";
 import { melhorarAcessibilidadeInput } from "./acessibilidade.js";
 
 let sugestoesClientes = [];
@@ -734,4 +734,5 @@ document.addEventListener("DOMContentLoaded", async () => {
   
   abrirBancoDados();
   setTimeout(tentarCarregarSugestoes, 500);
-});
+    aplicarTemaSalvo();
+  });
