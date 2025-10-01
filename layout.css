@@ -28,17 +28,23 @@
   --transicao-padrao: all 0.2s ease;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    --fundo-gradiente-inicio: #f0f4ff;
-    --fundo-gradiente-fim: #d1d9f7;
-    --fundo-superficie: #ffffff;
-    --fundo-interativo: #f0f0f0;
+body.tema-claro {
+  --fundo-gradiente-inicio: #f0f4ff;
+  --fundo-gradiente-fim: #d1d9f7;
+  --fundo-superficie: #ffffff;
+  --fundo-interativo: #f0f0f0;
 
-    --texto-corpo: #3a3b4c;
-    --texto-titulo: #2a3347;
+  --texto-corpo: #3a3b4c;
+  --texto-titulo: #2a3347;
 
-    --borda-sutil: rgba(122, 92, 207, 0.3);
+  --borda-sutil: rgba(122, 92, 207, 0.3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+    scroll-behavior: auto !important;
   }
 }
 
@@ -326,6 +332,10 @@ button.btn-alerta,
   background: var(--fundo-superficie);
 }
 
+body.tema-claro .item-lista:hover {
+  background: var(--borda-sutil);
+}
+
 .item-lista.ativo {
   border-color: var(--marca-padrao);
   background: var(--marca-padrao);
@@ -370,6 +380,21 @@ button.btn-alerta,
   gap: 0.1rem;
   color: var(--texto-corpo);
   font-size: 0.8rem;
+}
+
+/* destaque para produtos parcialmente pagos */
+.item-produto.produto-parcial {
+  border-color: rgba(208, 154, 60, 0.9);
+  background: linear-gradient(90deg, rgba(208,154,60,0.03), transparent 60%);
+}
+.item-produto.produto-parcial .produto-detalhes {
+  color: var(--texto-corpo);
+}
+
+/* destaque para produtos quitados */
+.item-produto.produto-quitado {
+  border-color: rgba(47, 174, 130, 0.9);
+  background: linear-gradient(90deg, rgba(47,174,130,0.03), transparent 60%);
 }
 
 .produto-valor {
@@ -427,17 +452,14 @@ button.btn-alerta,
   overflow-wrap: anywhere;
 }
 
-@media (prefers-color-scheme: light) {
-  .total-valor {
-    color: var(--marca-padrao);
-  }
+body.tema-claro .total-valor {
+  color: var(--marca-padrao);
 }
 
 .msg-erro {
   display: none;
   margin: 0 0 1rem 0;
   padding: 0.5rem;
-  border: 1px solid var(--retorno-perigo);
   border-radius: var(--raio-borda-m);
   background: rgba(239, 68, 68, 0.15);
   color: var(--retorno-perigo);
