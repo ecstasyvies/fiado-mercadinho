@@ -1,0 +1,25 @@
+{
+  "name": "Fiados do Mercadinho",
+  "short_name": "Fiados",
+  "id": "/",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0d1b2a",
+  "theme_color": "#0d1b2a",
+  "description": "Sistema robusto, offline, acessível, modular para pequenos comércios (clientes, fiados, pagamentos, relatórios).",
+  "categories": ["business", "productivity", "utilities"],
+  "lang": "pt-BR",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
+
+

@@ -187,7 +187,7 @@ function gerarTopClientesHTML(topClientes) {
   return `
     <div style="margin-bottom: 1rem;">
       <h4 style="color: var(--texto-titulo); margin-bottom: 1rem; margin-left: 0.5rem;">Principais Clientes em Dívida</h4>
-      <div style="background: var(--fundo-superficie); border-radius: var(--raio-borda-m); border: 1px solid var(--borda-sutil); overflow: hidden;">
+      <div style="background: var(--fundo-interativo); border-radius: var(--raio-borda-m); border: 1px solid var(--borda-sutil); overflow: hidden;">
         ${topClientes.map((cliente, index) => gerarClienteHTML(cliente, index)).join('')}
       </div>
     </div>

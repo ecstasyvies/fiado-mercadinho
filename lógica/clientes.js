@@ -21,6 +21,29 @@ function atualizarContadorClientes() {
   } else {
     container.appendChild(contador);
   }
+  // anotação: se não tiver cliente, eu escondo ações que só fazem sentido com cliente
+  try {
+    const btnBackup = document.getElementById('btnBackup');
+    const btnRelatorio = document.getElementById('btnRelatorio');
+    const containerAcoes = document.querySelector('.acoes-backup');
+    const temClientes = total > 0;
+    if (btnBackup) btnBackup.style.display = temClientes ? '' : 'none';
+    if (btnRelatorio) btnRelatorio.style.display = temClientes ? '' : 'none';
+    if (containerAcoes) {
+      let dica = containerAcoes.querySelector('.dica-relatorio');
+      if (!temClientes) {
+        if (!dica) {
+          dica = document.createElement('div');
+          dica.className = 'sem-registros dica-relatorio';
+          dica.setAttribute('role', 'note');
+          dica.textContent = 'Cadastre clientes para gerar relatório';
+          containerAcoes.appendChild(dica);
+        }
+      } else if (dica) {
+        dica.remove();
+      }
+    }
+  } catch (_) {}
   return total;
 }
 
@@ -189,6 +212,7 @@ function renderizarClientes(clientes) {
   lista.innerHTML = '';
   
   if (!clientes.length) {
+    // anotação: quando não tem nada, deixo o recado padrão aqui
     lista.innerHTML = '<li class="sem-registros">Nenhum cliente encontrado</li>';
     atualizarContadorClientes();
     return;

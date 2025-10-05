@@ -50,8 +50,10 @@ export const MENSAGENS = {
 
 export function mostrarErroCampo(elementoErro, mensagem) {
   if (!elementoErro) return;
+  
   elementoErro.textContent = mensagem;
   elementoErro.style.display = 'block';
+  
   setTimeout(() => {
     elementoErro.style.display = 'none';
     elementoErro.textContent = '';
@@ -60,10 +62,13 @@ export function mostrarErroCampo(elementoErro, mensagem) {
 
 export function mostrarNotificacao(mensagem, tipo = 'info') {
   const container = document.getElementById('notificacaoContainer');
-  if (!container) return console.error('Container de notificações não encontrado');
+  if (!container) {
+    return console.error('Container de notificações não encontrado');
+  }
   
   const notificacao = document.createElement('div');
   notificacao.className = `notificacao ${tipo}`;
+  
   let icone;
   switch (tipo) {
     case 'sucesso':
@@ -80,9 +85,18 @@ export function mostrarNotificacao(mensagem, tipo = 'info') {
   }
   
   notificacao.innerHTML = `
-    <div class="notificacao-conteudo">${icone}<span>${mensagem}</span></div>
-    <button class="notificacao-fechar">&times;</button>
+    <div class="notificacao-conteudo">
+      ${icone}
+      <span>${mensagem}</span>
+    </div>
+    <button class="notificacao-fechar">
+      <svg width="10" height="10" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg">
+        <line x1="2" y1="2" x2="8" y2="8" stroke="currentColor" stroke-width="1.5" />
+        <line x1="8" y1="2" x2="2" y2="8" stroke="currentColor" stroke-width="1.5" />
+      </svg>
+    </button>
   `;
+  
   container.appendChild(notificacao);
   
   setTimeout(() => notificacao.classList.add('mostrar'), 10);
@@ -92,7 +106,10 @@ export function mostrarNotificacao(mensagem, tipo = 'info') {
     setTimeout(() => notificacao.remove(), 300);
   };
   
-  notificacao.querySelector('.notificacao-fechar').addEventListener('click', fecharNotificacao);
+  notificacao
+    .querySelector('.notificacao-fechar')
+    .addEventListener('click', fecharNotificacao);
+  
   setTimeout(fecharNotificacao, 5000);
 }
 
@@ -175,10 +192,11 @@ export function mostrarConfirmacao(titulo, mensagem, tipo, callbackConfirmar, ca
 
 export function setButtonLoading(button, isLoading) {
   const originalText = button.innerHTML;
+  
   if (isLoading) {
     button.dataset.originalText = originalText;
     button.classList.add('loading');
-    button.innerHTML = '<span style="visibility: hidden;">' + originalText + '</span>';
+    button.innerHTML = `<span style="visibility: hidden;">${originalText}</span>`;
     button.disabled = true;
   } else {
     button.classList.remove('loading');

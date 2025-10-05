@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="author" content="Dérick Sousa">
   <meta name="description" content="Sistema robusto, offline, acessível (WCAG 2.2 AAA), modular, e focado em pequenos comércios, com funcionalidades como gerenciamento de clientes, registro de fiados, pagamentos parciais, relatórios, e proteção por senha.">
+  <meta name="theme-color" content="#0d1b2a">
   <title>Fiados do Mercadinho</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,6 +15,10 @@
   
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="layout.css">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <!-- apple-touch-icon: por enquanto usando o SVG; quando eu gerar PNG 192x192, troco aqui -->
+  <link rel="apple-touch-icon" href="icons/icon.svg">
 </head>
 
 <body>
@@ -103,6 +108,14 @@
   </main>
   
   <script type="module" src="lógica/principal.js"></script>
+  <script>
+  // Registro do Service Worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/service-worker.js').catch(() => {});
+    });
+  }
+  </script>
 </body>
 
 </html>
