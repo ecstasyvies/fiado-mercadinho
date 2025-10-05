@@ -36,6 +36,8 @@ Meu sistema permite registrar produtos fiados, calcular totais automaticamente e
 - Navegação completa por teclado com conformidade AAA em acessibilidade
 - Proteção por senha local (opcional)
 - Relatórios detalhados com estatísticas de fiados
+- Instalável como PWA (Web App), com funcionamento offline e cache de recursos
+- Atualização controlada: botão “Atualizar versão” aparece apenas quando há versão nova
 
 ---
 
@@ -44,6 +46,8 @@ Meu sistema permite registrar produtos fiados, calcular totais automaticamente e
 - **JavaScript (ES6)**: Lógica do sistema
 - **HTML5 Semântico**: Estrutura acessível e organizada
 - **CSS3 Moderno**: Variáveis, Flexbox e Grid
+- **Service Worker + Cache Storage**: Offline-first e estratégias de cache
+- **Web App Manifest**: Instalação como PWA e integração com sistema
 
 ---
 
@@ -62,6 +66,18 @@ Meu sistema permite registrar produtos fiados, calcular totais automaticamente e
 3. Para desenvolvimento e testes, utilize sempre a estrutura completa do projeto (abra a pasta inteira no editor).
 
 > **Observação**: É fundamental abrir a pasta completa no editor de código para que recursos como IndexedDB funcionem corretamente. Não execute apenas o arquivo `index.html` isoladamente. Para visualização, utilize a extensão de preview do editor ou um servidor local.
+
+### PWA (Instalação, Offline e Atualizações)
+
+- Instalação (usuários finais): basta acessar o site público em HTTPS e usar a opção de instalar do próprio navegador. Não é necessário usar `localhost`.
+- Instalação (desenvolvimento): opcionalmente usar `http://localhost` durante o desenvolvimento.
+- Offline: após o primeiro acesso, o conteúdo principal é armazenado e permanece disponível sem internet.
+- Atualizações: o navegador verifica e baixa atualizações automaticamente quando o usuário abre/retorna ao site ou recarrega a página. Quando uma nova versão está pronta (estado “waiting”), a seção “Atualizações” no modal mostra o botão “Atualizar versão”. Ao clicar, a nova versão é ativada imediatamente (skipWaiting) e a página recarrega.
+
+Como o navegador busca e baixa as atualizações:
+1) Ao abrir/voltar ao site, o navegador checa o `service-worker.js` e baixa uma nova versão se houver.
+2) A nova versão instala em paralelo e fica em “waiting” até você decidir ativá-la.
+3) O botão “Atualizar versão” só aparece quando detectamos esse estado “waiting”. Ao clicar, enviamos `SKIP_WAITING` ao SW e recarregamos a página para aplicar a atualização.
 
 ---
 
@@ -122,6 +138,10 @@ Meu sistema permite registrar produtos fiados, calcular totais automaticamente e
 | `relatorio.js`  | Geração de relatórios e estatísticas        |
 | `acessibilidade.js` | Módulo de acessibilidade e navegação    |
 | `layout.css`    | Estilização completa da interface           |
+| `service-worker.js` | Cache offline, políticas e atualização  |
+| `manifest.webmanifest` | Metadados PWA (nome, ícones, tema)   |
+| `offline.html`  | Página de fallback quando sem conexão       |
+| `icons/`        | Ícones do app (SVG; PNGs podem ser adicionados futuramente) |
 
 ---
 
@@ -147,6 +167,13 @@ O sistema segue as diretrizes WCAG 2.1 AAA:
 ### Apesar disso...
 
 **Essas limitações não tornam o sistema inútil, mas definem o público-alvo: pequenos comerciantes com operações simples que não precisam de escalabilidade massiva.**
+
+---
+
+## COMPORTAMENTOS DE INTERFACE IMPORTANTES
+
+- Botões de “Exportar Dados” e “Relatório” ficam ocultos quando não há clientes cadastrados. Enquanto ocultos, a área exibe a mensagem: “Cadastre clientes para gerar relatório”.
+- Ações do cliente (Pagamento Parcial, Liquidar) seguem regras de visibilidade próprias ao selecionar um cliente.
 
 ---
 
