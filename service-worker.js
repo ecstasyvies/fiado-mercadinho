@@ -7,7 +7,7 @@
   - Recursos externos (fonts): stale-while-revalidate
 */
 
-const SW_VERSION = 'v2';
+const SW_VERSION = 'v1';
 const STATIC_CACHE = `fiados-static-${SW_VERSION}`;
 const RUNTIME_CACHE = `fiados-runtime-${SW_VERSION}`;
 
