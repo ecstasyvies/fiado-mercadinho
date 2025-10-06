@@ -1,12 +1,6 @@
-Thumbs.db
-.DS_Store
 .vscode/
-.idea/
 *.log
 *.tmp
 *.bak
 *.swp
-*.zip
-node_modules/
-dist/
-build/
+.hintrc
