@@ -206,17 +206,6 @@ export function mostrarConfiguracoes() {
         </div>
       </div>
     </div>
-    <div id="secaoAtualizacao" style="margin-bottom: 1.5rem;">
-      <div style="background: var(--fundo-superficie); padding: 1rem; border: 1px solid var(--borda-sutil); border-radius: var(--raio-borda-m); display:flex; justify-content:space-between; align-items:center; gap:1rem;">
-        <div>
-          <h4 style="font-weight:600; color: var(--texto-corpo); margin:0 0 0.25rem 0;">Atualizações</h4>
-          <div id="statusAtualizacao" style="font-size:0.85rem; color: var(--texto-corpo);" aria-live="polite">Verificando atualizações...</div>
-        </div>
-        <div>
-          <button id="btnAtualizarVersao" class="modal-botao" aria-label="Atualizar versão">Atualizar versão</button>
-        </div>
-      </div>
-    </div>
     <div style="text-align: center;">
       <button id="fecharConfiguracoes" class="modal-botao" aria-label="Fechar configurações">Fechar</button>
     </div>
@@ -227,8 +216,6 @@ export function mostrarConfiguracoes() {
   const btnToggleTema = modal.querySelector("#btnToggleTema");
   const btnConfigurarSenha = modal.querySelector("#btnConfigurarSenha");
   const btnRemoverSenha = modal.querySelector("#btnRemoverSenha");
-  const btnAtualizarVersao = modal.querySelector('#btnAtualizarVersao');
-  const statusAtualizacao = modal.querySelector('#statusAtualizacao');
   
   const fecharPrincipal = () => {
     fecharEsteModal();
@@ -259,69 +246,6 @@ export function mostrarConfiguracoes() {
       } catch (e) {
         console.error(e);
       }
-    });
-  }
-  if (btnAtualizarVersao) {
-    // Por padrão, escondo até detectar atualização
-    btnAtualizarVersao.style.display = 'none';
-
-    const tornarVisivelSeWaiting = (reg) => {
-      if (reg && reg.waiting) {
-        btnAtualizarVersao.style.display = '';
-        if (statusAtualizacao) statusAtualizacao.textContent = 'Nova versão disponível.';
-      }
-    };
-
-    const observarUpdate = (reg) => {
-      try {
-        if (!reg) return;
-        reg.addEventListener('updatefound', () => {
-          const novo = reg.installing;
-          if (!novo) return;
-          novo.addEventListener('statechange', () => {
-            // Quando o SW novo instala e há um controller, ele ficará em waiting
-            if (novo.state === 'installed' && navigator.serviceWorker.controller) {
-              tornarVisivelSeWaiting(reg);
-            }
-          });
-        });
-      } catch (_) {}
-    };
-
-    const marcarSemAtualizacao = () => {
-      if (statusAtualizacao) statusAtualizacao.textContent = 'Nenhuma atualização disponível no momento.';
-      btnAtualizarVersao.style.display = 'none';
-    };
-
-    (async () => {
-      try {
-        if ('serviceWorker' in navigator) {
-          const reg = await navigator.serviceWorker.getRegistration();
-          observarUpdate(reg);
-          // Ao abrir o modal, forço uma checagem de versão
-          await reg?.update?.();
-          if (reg && reg.waiting) tornarVisivelSeWaiting(reg);
-          else marcarSemAtualizacao();
-        }
-      } catch (_) {}
-    })();
-
-    btnAtualizarVersao.addEventListener('click', async () => {
-      try {
-        if ('serviceWorker' in navigator) {
-          const reg = await navigator.serviceWorker.getRegistration();
-          if (reg && reg.waiting) {
-            reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-            setTimeout(() => window.location.reload(), 400);
-          } else {
-            await reg?.update?.();
-            if (reg && reg.waiting) {
-              reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-              setTimeout(() => window.location.reload(), 400);
-            }
-          }
-        }
-      } catch (_) {}
     });
   }
   
