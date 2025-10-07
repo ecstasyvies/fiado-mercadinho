@@ -20,8 +20,6 @@ Alguns comerciantes já possuem sistemas de frente de caixa, mas preferem contin
 
 Meu sistema permite registrar produtos fiados, calcular totais automaticamente e gerenciar pagamentos parciais, oferecendo **uma alternativa direta e intuitiva**. Ele preserva a praticidade do método manual, mas elimina erros, perda de dados e dificuldades de consulta.
 
-> Minhas entrevistas confirmam: para pequenos comerciantes, **simplicidade e praticidade valem mais do que sistemas comerciais completos, porém complexos**.
-
 ---
 
 ## FUNCIONALIDADES
