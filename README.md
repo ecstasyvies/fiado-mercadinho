@@ -35,7 +35,7 @@ Meu sistema permite registrar produtos fiados, calcular totais automaticamente e
 - Proteção por senha local (opcional)
 - Relatórios detalhados com estatísticas de fiados
 - Instalável como PWA (Web App), com funcionamento offline e cache de recursos
-- Atualização controlada: botão “Atualizar versão” aparece apenas quando há versão nova
+- Atualização controlada e automática
 
 ---
 
