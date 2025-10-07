@@ -70,12 +70,11 @@ Meu sistema permite registrar produtos fiados, calcular totais automaticamente e
 - Instalação (usuários finais): basta acessar o site público em HTTPS e usar a opção de instalar do próprio navegador. Não é necessário usar `localhost`.
 - Instalação (desenvolvimento): opcionalmente usar `http://localhost` durante o desenvolvimento.
 - Offline: após o primeiro acesso, o conteúdo principal é armazenado e permanece disponível sem internet.
-- Atualizações: o navegador verifica e baixa atualizações automaticamente quando o usuário abre/retorna ao site ou recarrega a página. Quando uma nova versão está pronta (estado “waiting”), a seção “Atualizações” no modal mostra o botão “Atualizar versão”. Ao clicar, a nova versão é ativada imediatamente (skipWaiting) e a página recarrega.
+- Atualizações: o navegador verifica e baixa atualizações automaticamente quando o usuário abre/retorna ao site ou recarrega a página.
 
 Como o navegador busca e baixa as atualizações:
 1) Ao abrir/voltar ao site, o navegador checa o `service-worker.js` e baixa uma nova versão se houver.
 2) A nova versão instala em paralelo e fica em “waiting” até você decidir ativá-la.
-3) O botão “Atualizar versão” só aparece quando detectamos esse estado “waiting”. Ao clicar, enviamos `SKIP_WAITING` ao SW e recarregamos a página para aplicar a atualização.
 
 ---
 
