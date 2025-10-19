@@ -1088,8 +1088,8 @@ input:focus-visible,
   
   button.btn-sucesso:hover {
     background: var(--retorno-sucesso-hover);
-    box-shadow: 0 4px 8px rgba(16, 185, 129, 0.4);
-    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.4);
+    
   }
   
   button.btn-perigo:hover {
