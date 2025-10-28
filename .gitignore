@@ -1,6 +1,5 @@
-.vscode/
-*.log
 *.tmp
 *.bak
 *.swp
+*.log
 .hintrc
