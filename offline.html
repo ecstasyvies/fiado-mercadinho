@@ -1,21 +1,96 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Offline - Fiados do Mercadinho</title>
   <meta name="description" content="Você está offline. Algumas funcionalidades podem não estar disponíveis.">
-  <link rel="stylesheet" href="layout.css">
+  <style>
+    @media (pointer: coarse) and (hover: none) {
+      * {
+        -webkit-tap-highlight-color: transparent;
+      }
+    }
+    
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      width: 100%;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+      color: #bfc0d1;
+      background: linear-gradient(to bottom, #252732, #31323e);
+    }
+    
+    main {
+      width: 90%;
+      max-width: 400px;
+      box-sizing: border-box;
+    }
+    
+    section {
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(30, 32, 44, 0.25);
+      text-align: center;
+      background-color: #31323e;
+      box-sizing: border-box;
+    }
+    
+    h1 {
+      margin-bottom: 16px;
+      font-size: 1.8em;
+      color: #f5f5f5;
+    }
+    
+    p {
+      margin-bottom: 24px;
+      font-size: 1em;
+      color: #bfc0d1;
+    }
+    
+    a.btn-alerta {
+      display: inline-block;
+      padding: 12px 24px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: bold;
+      color: #fefefe;
+      background-color: #d09a3c;
+      transition: background-color 0.2s ease, transform 0.1s ease;
+      outline: none;
+      box-sizing: border-box;
+    }
+    
+    a.btn-alerta:hover,
+    a.btn-alerta:focus {
+      background-color: #b4742e;
+    }
+    
+    a.btn-alerta:active {
+      transform: scale(0.98);
+      background-color: #b4742e;
+    }
+    
+    a.btn-alerta:focus-visible {
+      outline: 3px solid #fefefe;
+      outline-offset: 2px;
+    }
+  </style>
 </head>
+
 <body>
-  <main class="conteiner">
-    <section class="cartao" aria-labelledby="offlineTitulo">
+  <main>
+    <section aria-labelledby="offlineTitulo">
       <h1 id="offlineTitulo">Você está offline</h1>
       <p>Tente reconectar-se à internet. Enquanto isso, você ainda pode abrir o aplicativo instalado e consultar dados já carregados.</p>
       <a href="/" class="btn-alerta" aria-label="Voltar para a página inicial">Voltar para a página inicial</a>
     </section>
   </main>
 </body>
+
 </html>
-
-
