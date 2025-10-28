@@ -1,17 +1,7 @@
-/*
-  Service Worker para PWA do Fiados do Mercadinho
-  Estratégias:
-  - Pré-cache de shell da aplicação
-  - Navegação: network-first com fallback offline
-  - Estático local: cache-first
-  - Recursos externos (fonts): stale-while-revalidate
-*/
-
 const SW_VERSION = 'v1';
 const STATIC_CACHE = `fiados-static-${SW_VERSION}`;
 const RUNTIME_CACHE = `fiados-runtime-${SW_VERSION}`;
 
-// Arquivos essenciais da aplicação (app shell)
 const PRECACHE_URLS = [
   '/',
   '/index.html',
@@ -27,7 +17,6 @@ const PRECACHE_URLS = [
   '/lógica/produtos.js',
   '/lógica/relatorio.js',
   '/lógica/seguranca.js',
-  // Ícone
   '/icons/icon.svg'
 ];
 
@@ -54,7 +43,6 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Atualização manual: permite que a página peça para ativar a nova versão
 self.addEventListener('message', (event) => {
   if (!event.data) return;
   if (event.data.type === 'SKIP_WAITING') {
@@ -62,15 +50,13 @@ self.addEventListener('message', (event) => {
   }
 });
 
-// Utilitário simples para detectar navegação
 function isNavigationRequest(request) {
   return request.mode === 'navigate' || (request.method === 'GET' && request.headers.get('accept')?.includes('text/html'));
 }
 
 self.addEventListener('fetch', (event) => {
   const { request } = event;
-
-  // Navegações: network-first com fallback para offline.html
+  
   if (isNavigationRequest(request)) {
     event.respondWith(
       (async () => {
@@ -88,19 +74,17 @@ self.addEventListener('fetch', (event) => {
     );
     return;
   }
-
+  
   const url = new URL(request.url);
-
-  // Mesma origem: estáticos
+  
   if (url.origin === self.location.origin) {
     event.respondWith(
       (async () => {
         const destination = request.destination;
         const isAsset = destination === 'script' || destination === 'style';
         const cache = await caches.open(RUNTIME_CACHE);
-
+        
         if (isAsset) {
-          // stale-while-revalidate para JS/CSS (evita ficar preso a versões antigas)
           const cached = await cache.match(request);
           const fetchPromise = fetch(request)
             .then((networkResponse) => {
@@ -110,7 +94,6 @@ self.addEventListener('fetch', (event) => {
             .catch(() => undefined);
           return cached || fetchPromise || fetch(request);
         } else {
-          // Demais estáticos: cache-first
           const cached = await caches.match(request);
           if (cached) return cached;
           try {
@@ -125,8 +108,7 @@ self.addEventListener('fetch', (event) => {
     );
     return;
   }
-
-  // Terceiros (ex.: Google Fonts): stale-while-revalidate
+  
   if (/fonts\.(googleapis|gstatic)\.com/.test(url.host)) {
     event.respondWith(
       (async () => {
@@ -143,5 +125,3 @@ self.addEventListener('fetch', (event) => {
     );
   }
 });
-
-
