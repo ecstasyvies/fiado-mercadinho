@@ -6,7 +6,6 @@ const PRECACHE_URLS = [
   '/',
   '/index.html',
   '/layout.css',
-  '/offline.html',
   '/manifest.webmanifest',
   '/lógica/principal.js',
   '/lógica/acessibilidade.js',
@@ -67,7 +66,9 @@ self.addEventListener('fetch', (event) => {
           return networkResponse;
         } catch (_) {
           const cache = await caches.open(STATIC_CACHE);
-          const cached = await cache.match('/offline.html');
+          // Tenta servir o shell de navegação já em cache (index.html ou '/'),
+          // evitando o uso de uma página de fallback dedicada.
+          const cached = await cache.match(request) || await cache.match('/index.html') || await cache.match('/');
           return cached || new Response('Offline', { status: 503, statusText: 'Offline' });
         }
       })()
@@ -101,7 +102,10 @@ self.addEventListener('fetch', (event) => {
             cache.put(request, response.clone());
             return response;
           } catch (_) {
-            return caches.match('/offline.html');
+            // Se a rede falhar e nada estiver no cache, tente devolver o próprio
+            // recurso em cache (se existir) ou o shell `/index.html`/`/`.
+            const fallback = await caches.match(request) || await caches.match('/index.html') || await caches.match('/');
+            return fallback || new Response('Offline', { status: 503, statusText: 'Offline' });
           }
         }
       })()
