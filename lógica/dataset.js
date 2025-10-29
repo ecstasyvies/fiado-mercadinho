@@ -6,6 +6,7 @@ import {
   mostrarConfirmacao,
   MENSAGENS,
 } from "./interface.js";
+import { emitir as emitirEvento } from './eventos.js';
 
 let db;
 
@@ -145,7 +146,10 @@ export function importarDados() {
           if (Array.isArray(dados) && dados.length === 0) {
             const requisicaoLimpar = armazenamento.clear();
             requisicaoLimpar.onsuccess = () => {
+              // Lista e notifica que o DB mudou para que caches (autocomplete)
+              // sejam atualizados por ouvintes registrados.
               listarClientes();
+              emitirEvento('dados:alterados', { type: 'clear' });
               mostrarNotificacao(
                 "Todos os clientes foram removidos (importação vazia).",
                 "alerta"
@@ -234,6 +238,8 @@ export function importarDados() {
           function finalizar() {
             if (importados + erros === dados.length) {
               listarClientes();
+              // sinaliza alteração geral no DB (import/merge)
+              emitirEvento('dados:alterados', { type: 'import', imported: importados, errors: erros });
               mostrarNotificacao(
                 `Importação concluída: ${importados} registros processados${
                   erros > 0 ? `, ${erros} erros` : ""
