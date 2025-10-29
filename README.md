@@ -137,7 +137,6 @@ Como o navegador busca e baixa as atualizações:
 | `layout.css`    | Estilização completa da interface           |
 | `service-worker.js` | Cache offline, políticas e atualização  |
 | `manifest.webmanifest` | Metadados PWA (nome, ícones, tema)   |
-| `offline.html`  | Página de fallback quando sem conexão       |
 | `icons/`        | Ícones do app (SVG; PNGs podem ser adicionados futuramente) |
 
 ---
