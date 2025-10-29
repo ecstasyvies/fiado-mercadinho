@@ -2,6 +2,7 @@
 
 import { db } from './dataset.js';
 import { mostrarNotificacao, mostrarConfirmacao, MENSAGENS, anunciarParaLeitorDeTela, mostrarErroCampo } from './interface.js';
+import { emitir as emitirEvento } from './eventos.js';
 import { listarProdutos } from './produtos.js';
 
 let idClienteSelecionado = null;
@@ -82,7 +83,9 @@ export async function adicionarCliente() {
     
     requisicao.onsuccess = async function() {
       inputNome.value = '';
-      await listarClientes();
+  await listarClientes();
+  // sinaliza que houve alteração no DB (novo cliente)
+  emitirEvento('dados:alterados', { type: 'add', entity: 'cliente' });
       const totalClientes = document.querySelectorAll('#listaClientes .item-lista:not(.sem-registros)').length;
       anunciarParaLeitorDeTela(`Cliente ${nome} adicionado. A lista agora contém ${totalClientes} clientes.`);
       document.getElementById('buscaCliente').value = '';
@@ -270,6 +273,8 @@ export function removerCliente() {
         deletarClienteDoDB(idClienteSelecionado, async () => {
           resetarSelecaoCliente();
           await listarClientes();
+          // sinaliza que houve remoção
+          emitirEvento('dados:alterados', { type: 'delete', entity: 'cliente' });
           const totalClientes = document.querySelectorAll('#listaClientes .item-lista:not(.sem-registros)').length;
           anunciarParaLeitorDeTela(`Cliente ${nomeClienteParaRemover} removido. A lista agora contém ${totalClientes} clientes.`);
           document.getElementById('listaProdutos').innerHTML = '<li class="sem-registros">Selecione um cliente para ver as compras</li>';
