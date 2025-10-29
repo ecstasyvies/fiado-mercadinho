@@ -22,6 +22,7 @@ import {
   registrarPagamentoParcial,
 } from "./produtos.js";
 import { mostrarPromptSenha } from "./seguranca.js";
+import { ouvir as ouvirEvento, remover as removerEvento } from './eventos.js';
 import { mostrarRelatorio } from "./relatorio.js";
 import { mostrarConfiguracoes, aplicarTemaSalvo } from "./configuracoes.js";
 import { melhorarAcessibilidadeInput } from "./acessibilidade.js";
@@ -45,10 +46,13 @@ function normalizarTexto(s) {
 }
 
 function carregarSugestoesClientes(clientes) {
-  sugestoesClientes = clientes.map((c) => c.nome);
+  // Atualiza o array em memória sem reatribuir a variável, assim as
+  // closures do autocomplete continuam a apontar para o mesmo objeto.
+  sugestoesClientes.length = 0;
   mapaClientesPorNome.clear();
   clientes.forEach((c) => {
     if (c && typeof c.nome === "string") {
+      sugestoesClientes.push(c.nome);
       mapaClientesPorNome.set(normalizarTexto(c.nome), {
         id: c.id,
         nome: c.nome,
@@ -58,7 +62,9 @@ function carregarSugestoesClientes(clientes) {
 }
 
 function carregarSugestoesProdutos(clientes) {
+  // Mantém a mesma instância de array e atualiza o mapa de preços.
   const produtos = [];
+  sugestoesProdutos.length = 0;
   mapaProdutosUltimoPreco.clear();
   clientes.forEach((cliente) => {
     if (cliente.produtos) {
@@ -72,9 +78,7 @@ function carregarSugestoesProdutos(clientes) {
           typeof produto.preco === "number"
         ) {
           const chave = normalizarTexto(produto.nome);
-          const data = produto.dataCompra ?
-            new Date(produto.dataCompra).getTime() :
-            0;
+          const data = produto.dataCompra ? new Date(produto.dataCompra).getTime() : 0;
           const existente = mapaProdutosUltimoPreco.get(chave);
           if (!existente || (data && data > existente.dataMs)) {
             mapaProdutosUltimoPreco.set(chave, {
@@ -86,7 +90,7 @@ function carregarSugestoesProdutos(clientes) {
       });
     }
   });
-  sugestoesProdutos = produtos;
+  sugestoesProdutos.push(...produtos);
 }
 
 function carregarSugestoes() {
@@ -359,6 +363,10 @@ function mostrarSugestoesAutocomplete(
 
 function configurarAutocompletarCampo(input, sugestoes, tipo) {
   const { container, suggestionsDiv } = criarContainerAutocomplete(input);
+  // registro leve das instâncias para permitir re-renderizar sugestões
+  // abertas quando o DB é atualizado.
+  if (!window.__autocompleteInstances) window.__autocompleteInstances = [];
+  window.__autocompleteInstances.push({ input, suggestionsDiv, tipo });
   
   input.addEventListener("input", (e) =>
     mostrarSugestoesAutocomplete(
@@ -434,6 +442,39 @@ function tentarCarregarSugestoes() {
     setTimeout(tentarCarregarSugestoes, 300);
   }
 }
+
+// --- sincronização reativa: quando o DB muda, recarregamos sugestões.
+let reloadTimeout = null;
+function agendarCarregamentoSugestoes(detalhe) {
+  // debouncing para evitar cargas repetidas quando múltiplas operações
+  // fazem alterações em sequência (import, vários puts, etc.)
+  if (reloadTimeout) clearTimeout(reloadTimeout);
+  reloadTimeout = setTimeout(() => {
+    if (!db) return;
+    carregarSugestoes()
+      .then(() => {
+        dbCarregado = true;
+        // re-renderiza sugestões que estejam abertas no momento
+        const instances = window.__autocompleteInstances || [];
+        instances.forEach((inst) => {
+          try {
+            if (inst.suggestionsDiv && inst.suggestionsDiv.style.display === 'block') {
+              const tipo = inst.tipo;
+              const lista = tipo.toLowerCase() === 'cliente' ? sugestoesClientes : sugestoesProdutos;
+              mostrarSugestoesAutocomplete(inst.input, inst.suggestionsDiv, lista, tipo, inst.input.value);
+            }
+          } catch (e) {
+            // não bloquear a atualização por erro em um caso isolado
+            console.error('Erro ao re-renderizar autocomplete:', e);
+          }
+        });
+      })
+      .catch(() => {});
+  }, 250);
+}
+
+// registra listener do pub/sub para atualizações do DB
+ouvirEvento('dados:alterados', agendarCarregamentoSugestoes);
 
 function configurarEventosTeclado() {
   document
