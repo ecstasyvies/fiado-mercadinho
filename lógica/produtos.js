@@ -10,6 +10,7 @@ import {
   aoFecharModal,
   mostrarErroCampo
 } from "./interface.js";
+import { emitir as emitirEvento } from './eventos.js';
 import { idClienteSelecionado, nomeClienteSelecionado } from "./clientes.js";
 import { configurarModalAcessibilidade } from "./acessibilidade.js";
 
@@ -99,7 +100,10 @@ export function adicionarProduto() {
       requisicaoAtualizar.onsuccess = function() {
         document.getElementById("nomeProduto").value = "";
         document.getElementById("precoProduto").value = "";
-        listarProdutos(idClienteSelecionado);
+  listarProdutos(idClienteSelecionado);
+  // sinaliza alteração no DB para que sugestões (produtos/clientes)
+  // sejam reavaliadas pelos ouvintes.
+  emitirEvento('dados:alterados', { type: 'update', entity: 'produto', clienteId: idClienteSelecionado });
         mostrarNotificacao(MENSAGENS.produtoAdicionado, "sucesso");
         
         const campoProduto = document.getElementById("nomeProduto");
@@ -179,8 +183,10 @@ function removerProdutoDoCliente(produtoId) {
             mostrarNotificacao("Erro ao liquidar dívida após remoção", "erro");
           };
         } else {
-          listarProdutos(idClienteSelecionado);
-          mostrarNotificacao(MENSAGENS.produtoRemovido, "sucesso");
+            listarProdutos(idClienteSelecionado);
+            // sinaliza remoção de produto para atualizar caches
+            emitirEvento('dados:alterados', { type: 'delete', entity: 'produto', clienteId: idClienteSelecionado });
+            mostrarNotificacao(MENSAGENS.produtoRemovido, "sucesso");
         }
       };
       
