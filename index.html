@@ -76,6 +76,24 @@
         <span id="nomeClienteSelecionado">Cliente selecionado</span>
       </div>
       
+      <div class="comentarios-cliente" id="comentariosCliente" style="display: none;">
+        <h3>Anotações do Cliente</h3>
+        <div class="grupo-form">
+          <label for="comentariosTexto" class="rotulo">Anotações e Observações</label>
+          <textarea id="comentariosTexto" 
+            placeholder="(Opcional) Registre aqui informações importantes sobre o cliente (preferências, limites, contatos...)" 
+            aria-label="Anotações sobre o cliente"
+            aria-describedby="comentariosDica"
+            rows="4"></textarea>
+          <div id="comentariosDica" class="dica-anotacoes">
+            Pressione Enter para salvar. Em dispositivos móveis, toque fora do campo para salvar automaticamente.
+          </div>
+          <button id="btnSalvarComentarios" aria-label="Salvar anotações do cliente">
+            <i class="fas fa-save btn-icone" aria-hidden="true"></i>Salvar Anotações
+          </button>
+        </div>
+      </div>
+      
       <div class="grupo-form">
         <label for="nomeProduto" class="rotulo">Descrição do Produto</label>
         <input type="text" id="nomeProduto" placeholder="Nome do produto" aria-label="Descrição do produto" aria-describedby="erroProduto" aria-required="true">
