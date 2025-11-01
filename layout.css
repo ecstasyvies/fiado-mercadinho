@@ -302,6 +302,18 @@ button.btn-alerta,
   list-style: none;
 }
 
+.lista-clientes .fa-comment-dots {
+  margin-left: 0.5rem;
+  color: var(--marca-padrao);
+  opacity: 0.8;
+  transition: var(--transicao-padrao);
+}
+
+.lista-clientes .item-lista.ativo .fa-comment-dots {
+  color: var(--texto-sobre-marca);
+  opacity: 1;
+}
+
 .lista-clientes {
   max-height: 300px;
   padding-right: 0.5rem;
@@ -477,6 +489,62 @@ body.tema-claro .total-valor {
 /* Pensar sobre fazer algo assim */
 body.tema-claro .sem-registros {
   color: var(--neutro);
+}
+
+.comentarios-cliente {
+  margin-bottom: 2rem;
+  padding: 1rem;
+  border: 1px solid var(--borda-sutil);
+  border-radius: var(--raio-borda-m);
+  background: var(--fundo-interativo);
+}
+
+.comentarios-cliente h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--borda-sutil);
+  color: var(--texto-corpo);
+  font-size: 1.1rem;
+}
+
+.comentarios-cliente textarea {
+  width: 100%;
+  margin-bottom: 1rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--marca-padrao);
+  border-radius: var(--raio-borda-m);
+  background: var(--fundo-interativo);
+  color: var(--texto-corpo);
+  font-family: inherit;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  resize: vertical;
+  transition: var(--transicao-padrao);
+}
+
+.comentarios-cliente textarea:focus {
+  border-color: var(--marca-padrao);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(96, 81, 155, 0.3);
+}
+
+.comentarios-cliente .dica-anotacoes {
+  margin-top: -0.5rem;
+  margin-bottom: 1rem;
+  color: var(--texto-corpo);
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+.comentarios-cliente textarea.salvando {
+  background: linear-gradient(90deg, var(--fundo-interativo), rgba(122, 92, 207, 0.05));
+  transition: background 0.3s ease;
+}
+
+.comentarios-cliente textarea.salvo {
+  background: var(--fundo-interativo);
+  transition: background 0.3s ease;
 }
 
 .status-cliente {
