@@ -136,29 +136,18 @@ function filtrarClientes(clientes, termo) {
   return [...comecamComTermo, ...contemNoMeio];
 }
 
-function resetarSelecaoCliente() {
-  idClienteSelecionado = null;
-  nomeClienteSelecionado = '';
-  document.getElementById('acoesCliente').className = 'acoes-cliente acoes-cliente-oculto';
-  document.getElementById('statusCliente').className = 'status-cliente status-cliente-oculto';
-  document.getElementById('listaProdutos').innerHTML = '<li class="sem-registros">Selecione um cliente para ver as compras</li>';
-  document.getElementById('totalCompra').innerHTML = 'Total: <span class="total-valor">R$ 0,00</span>';
-  const tituloH3 = document.getElementById('tituloComprasRegistradas');
-  if (tituloH3) {
-    tituloH3.textContent = 'Compras Registradas';
-  }
-}
+// Removida primeira declaração de resetarSelecaoCliente (movida para baixo)
 
 function criarItemCliente(cliente) {
   const item = document.createElement('li');
   item.className = `item-lista ${cliente.id === idClienteSelecionado ? 'ativo' : ''}`;
   item.innerHTML = `
-    <span>${cliente.nome}</span>
+    <span>${cliente.nome}${cliente.comentarios ? ' <i class="fas fa-comment-dots" title="Cliente possui anotações"></i>' : ''}</span>
     <span class="etiqueta">${cliente.produtos ? cliente.produtos.length : 0} itens</span>
   `;
   item.setAttribute('tabindex', '0');
   item.setAttribute('role', 'button');
-  item.setAttribute('aria-label', `Selecionar cliente ${cliente.nome}`);
+  item.setAttribute('aria-label', `Selecionar cliente ${cliente.nome}${cliente.comentarios ? ' (possui anotações)' : ''}`);
   item.setAttribute('data-cliente-id', cliente.id);
   
   const selecionarCliente = () => {
@@ -173,6 +162,11 @@ function criarItemCliente(cliente) {
       document.getElementById('acoesCliente').className = 'acoes-cliente acoes-cliente-visivel';
       document.getElementById('statusCliente').className = 'status-cliente status-cliente-visivel';
       document.getElementById('nomeClienteSelecionado').textContent = cliente.nome;
+      
+      // Mostra e carrega os comentários
+      const comentariosDiv = document.getElementById('comentariosCliente');
+      comentariosDiv.style.display = 'block';
+      carregarComentarios(cliente.id);
       
       setTimeout(() => {
         const campo = document.getElementById('nomeProduto');
@@ -291,6 +285,162 @@ export function removerCliente() {
   };
 }
 
+// Removida primeira declaração de selecionarClientePorId (movida para baixo)
+
+function carregarComentarios(clienteId) {
+  const transacao = db.transaction(['clientes'], 'readonly');
+  const armazenamento = transacao.objectStore('clientes');
+  const requisicao = armazenamento.get(clienteId);
+  
+  requisicao.onsuccess = function(e) {
+    const cliente = e.target.result;
+    const comentariosTexto = document.getElementById('comentariosTexto');
+    comentariosTexto.value = cliente.comentarios || '';
+  };
+  
+  requisicao.onerror = function() {
+    mostrarNotificacao('Erro ao carregar anotações', 'erro');
+  };
+}
+
+function salvarComentarios(clienteId, novoComentario) {
+  const transacao = db.transaction(['clientes'], 'readwrite');
+  const armazenamento = transacao.objectStore('clientes');
+  const requisicao = armazenamento.get(clienteId);
+  
+  requisicao.onsuccess = function(e) {
+    const cliente = e.target.result;
+    cliente.comentarios = novoComentario;
+    
+    const requisicaoUpdate = armazenamento.put(cliente);
+    
+    requisicaoUpdate.onsuccess = function() {
+      mostrarNotificacao('Anotações salvas com sucesso', 'sucesso');
+      emitirEvento('dados:alterados', { type: 'update', entity: 'cliente', field: 'comentarios' });
+    };
+    
+    requisicaoUpdate.onerror = function() {
+      mostrarNotificacao('Erro ao salvar anotações', 'erro');
+    };
+  };
+}
+
+// Função para debounce do auto-save
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
+// Função para salvar comentários com feedback visual
+function salvarComentariosComFeedback(clienteId, novoComentario, silencioso = false) {
+  if (!clienteId) return;
+  
+  const textarea = document.getElementById('comentariosTexto');
+  textarea.classList.add('salvando');
+  
+  const transacao = db.transaction(['clientes'], 'readwrite');
+  const armazenamento = transacao.objectStore('clientes');
+  const requisicao = armazenamento.get(clienteId);
+  
+  requisicao.onsuccess = function(e) {
+    const cliente = e.target.result;
+    cliente.comentarios = novoComentario;
+    
+    const requisicaoUpdate = armazenamento.put(cliente);
+    
+    requisicaoUpdate.onsuccess = function() {
+      if (!silencioso) {
+        mostrarNotificacao('Anotações salvas com sucesso', 'sucesso');
+      }
+      emitirEvento('dados:alterados', { type: 'update', entity: 'cliente', field: 'comentarios' });
+      
+      textarea.classList.remove('salvando');
+      textarea.classList.add('salvo');
+      setTimeout(() => textarea.classList.remove('salvo'), 500);
+      
+      // Atualiza o ícone na lista
+      listarClientes();
+    };
+    
+    requisicaoUpdate.onerror = function() {
+      mostrarNotificacao('Erro ao salvar anotações', 'erro');
+      textarea.classList.remove('salvando');
+    };
+  };
+}
+
+// Função para inicializar os eventos dos comentários
+function inicializarEventosComentarios() {
+  const textarea = document.getElementById('comentariosTexto');
+  const btnSalvarComentarios = document.getElementById('btnSalvarComentarios');
+  
+  if (!textarea || !btnSalvarComentarios) return;
+  
+  // Auto-save com debounce
+  const autoSave = debounce(() => {
+    if (!idClienteSelecionado) return;
+    const novoComentario = textarea.value.trim();
+    salvarComentariosComFeedback(idClienteSelecionado, novoComentario, true);
+  }, 1000);
+  
+  // Evento de mudança no texto
+  textarea.addEventListener('input', autoSave);
+  
+  // Salvar ao perder foco
+  textarea.addEventListener('blur', () => {
+    if (!idClienteSelecionado) return;
+    const novoComentario = textarea.value.trim();
+    salvarComentariosComFeedback(idClienteSelecionado, novoComentario, true);
+  });
+  
+  // Tecla Enter (exceto em mobile)
+  textarea.addEventListener('keydown', (e) => {
+    // Em dispositivos móveis, Enter é usado para quebra de linha
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    if (!isMobile && e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      const novoComentario = textarea.value.trim();
+      salvarComentariosComFeedback(idClienteSelecionado, novoComentario);
+    }
+    // Ctrl/Cmd + Enter sempre salva (útil em mobile)
+    else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      const novoComentario = textarea.value.trim();
+      salvarComentariosComFeedback(idClienteSelecionado, novoComentario);
+    }
+  });
+  
+  // Botão de salvar
+  btnSalvarComentarios.addEventListener('click', () => {
+    if (!idClienteSelecionado) return;
+    const novoComentario = textarea.value.trim();
+    salvarComentariosComFeedback(idClienteSelecionado, novoComentario);
+  });
+}
+
+export function resetarSelecaoCliente() {
+  idClienteSelecionado = null;
+  nomeClienteSelecionado = '';
+  document.getElementById('acoesCliente').className = 'acoes-cliente acoes-cliente-oculto';
+  document.getElementById('statusCliente').className = 'status-cliente status-cliente-oculto';
+  document.getElementById('listaProdutos').innerHTML = '<li class="sem-registros">Selecione um cliente para ver as compras</li>';
+  document.getElementById('totalCompra').innerHTML = 'Total: <span class="total-valor">R$ 0,00</span>';
+  document.getElementById('comentariosCliente').style.display = 'none';
+  const tituloH3 = document.getElementById('tituloComprasRegistradas');
+  if (tituloH3) {
+    tituloH3.textContent = 'Compras Registradas';
+  }
+}
+
+// Função para selecionar um cliente
 export function selecionarClientePorId(clienteId, clienteNome) {
   idClienteSelecionado = clienteId;
   nomeClienteSelecionado = clienteNome;
@@ -298,7 +448,12 @@ export function selecionarClientePorId(clienteId, clienteNome) {
   document.getElementById('acoesCliente').className = 'acoes-cliente acoes-cliente-visivel';
   document.getElementById('statusCliente').className = 'status-cliente status-cliente-visivel';
   document.getElementById('nomeClienteSelecionado').textContent = clienteNome;
+  document.getElementById('comentariosCliente').style.display = 'block';
+  carregarComentarios(clienteId);
   listarClientes();
 }
+
+// Inicializa os eventos dos comentários quando o módulo é carregado
+inicializarEventosComentarios();
 
 export { idClienteSelecionado, nomeClienteSelecionado };
