@@ -11,16 +11,42 @@ import { emitir as emitirEvento } from './eventos.js';
 let db;
 
 export function abrirBancoDados() {
-  const requisicao = indexedDB.open("mercadinhoDB", 5);
+  const requisicao = indexedDB.open("mercadinhoDB", 6);
 
   requisicao.onupgradeneeded = function (e) {
     const db = e.target.result;
+    const oldVersion = e.oldVersion;
+    
     if (!db.objectStoreNames.contains("clientes")) {
       const armazenamento = db.createObjectStore("clientes", {
         keyPath: "id",
         autoIncrement: true,
       });
       armazenamento.createIndex("porNome", "nome", { unique: false });
+    }
+    
+    // Atualiza a estrutura para incluir comentários na versão 6
+    if (oldVersion < 6) {
+      const transacao = e.target.transaction;
+      const clientesStore = transacao.objectStore("clientes");
+      
+      // Verifica se o índice de comentários já existe
+      if (!clientesStore.indexNames.contains("porComentario")) {
+        clientesStore.createIndex("porComentario", "comentarios", { unique: false });
+      }
+      
+      // Adiciona campo de comentários aos registros existentes
+      clientesStore.openCursor().onsuccess = function(event) {
+        const cursor = event.target.result;
+        if (cursor) {
+          const cliente = cursor.value;
+          if (!cliente.comentarios) {
+            cliente.comentarios = "";
+            cursor.update(cliente);
+          }
+          cursor.continue();
+        }
+      };
     }
   };
 
@@ -74,6 +100,10 @@ function validarEstruturaDados(dados) {
 
     if (cliente.produtos !== undefined && !Array.isArray(cliente.produtos)) {
       throw new Error(`Cliente ${i + 1}: produtos deve ser um array`);
+    }
+
+    if (cliente.comentarios !== undefined && typeof cliente.comentarios !== "string") {
+      throw new Error(`Cliente ${i + 1}: comentários deve ser uma string`);
     }
 
     if (cliente.produtos && cliente.produtos.length > 0) {
