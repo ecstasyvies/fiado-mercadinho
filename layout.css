@@ -733,20 +733,134 @@ body.tema-claro .sem-registros {
   background: transparent;
 }
 
+/* Elementos do Relatório */
+.modal-icone {
+  margin-bottom: 1rem;
+  color: var(--marca-padrao);
+  font-size: 2.5rem;
+  text-align: center;
+}
+
 .modal-titulo {
   margin-bottom: 0.5rem;
   color: var(--texto-titulo);
   font-size: 1.3rem;
   font-weight: 700;
   letter-spacing: -0.01em;
+  text-align: center;
 }
 
-.modal-icone {
+/* Grid de Estatísticas */
+.modal-estatisticas {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+  align-items: stretch;
+  justify-items: stretch;
+}
+
+.modal-estatisticas > div {
+  background: var(--fundo-superficie);
+  padding: 1rem;
+  border: 1px solid var(--borda-sutil);
+  border-radius: var(--raio-borda-m);
+  text-align: center;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-estatisticas > div > div:first-child {
+  font-size: 2rem;
+  font-weight: bold;
+  text-shadow: 0 0 1px rgba(0,0,0,0.3);
+  margin-bottom: 0.25rem;
+}
+
+.modal-estatisticas > div > div:last-child {
+  color: var(--texto-corpo);
+  font-size: 0.9rem;
+}
+
+/* Seção Meta Mensal */
+.secao-meta-mensal {
+  margin-bottom: 2rem;
+}
+
+.secao-meta-mensal h4 {
+  color: var(--texto-titulo);
   margin-bottom: 1rem;
-  color: var(--marca-padrao);
-  font-size: 2.5rem;
 }
 
+.meta-input-container {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.meta-input-wrapper {
+  flex: 1;
+  min-width: 0;
+}
+
+.meta-input-wrapper .rotulo {
+  margin-bottom: 0.5rem;
+}
+
+.meta-input-wrapper input {
+  margin-bottom: 0;
+  width: 100%;
+}
+
+.meta-btn-wrapper {
+  flex-shrink: 0;
+}
+
+.meta-btn-wrapper .modal-botao {
+  width: 3.5rem;
+  height: 3rem;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.barra-progresso-container {
+  position: relative;
+  margin-bottom: 0.5rem;
+}
+
+.barra-progresso {
+  width: 100%;
+  height: 20px;
+  background: var(--fundo-interativo);
+  border-radius: var(--raio-borda-m);
+  overflow: hidden;
+  border: 1px solid var(--borda-sutil);
+}
+
+.barra-progresso > div {
+  height: 100%;
+  background: var(--marca-padrao);
+  transition: width 0.3s ease;
+}
+
+.barra-progresso[aria-valuenow="100"] > div {
+  background: var(--retorno-sucesso);
+}
+
+.secao-meta-mensal .mensagem-sucesso {
+  color: var(--retorno-sucesso);
+  font-weight: 600;
+}
+
+/* Botões e Inputs do Modal */
 .modal-botao {
   margin: 0 auto;
   padding: 0.75rem 2rem;
@@ -769,14 +883,12 @@ body.tema-claro .sem-registros {
 .modal-botao[aria-label*="alerta"],
 .modal-botao.alerta {
   background: var(--neutro);
-  color: var(--texto-sobre-marca);
 }
 
 .modal-botao[aria-label*="perigo"],
 .modal-botao.perigo {
   background: var(--retorno-perigo);
   box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
-  color: var(--texto-sobre-marca);
 }
 
 .modal-input {
@@ -806,22 +918,32 @@ body.tema-claro .sem-registros {
   font-size: 0.95rem;
 }
 
-.modal-fechar {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: none;
-  border: none;
-  color: var(--texto-corpo);
-  font-size: 1.5rem;
-  cursor: pointer;
-  transition: color 0.2s;
-}
-
-.modal-fechar:hover,
-.modal-fechar:focus {
-  color: var(--retorno-perigo);
-  outline: 2px solid var(--retorno-perigo);
+/* Responsividade */
+@media (max-width: 480px) {
+  .meta-input-container {
+    gap: 0.75rem;
+  }
+  
+  .meta-btn-wrapper .modal-botao {
+    width: 3rem;
+    height: 2.75rem;
+  }
+  
+  .modal-estatisticas {
+    gap: 0.75rem;
+  }
+  
+  .modal-estatisticas > div {
+    padding: 0.75rem;
+  }
+  
+  .modal-estatisticas > div > div:first-child {
+    font-size: 1.5rem;
+  }
+  
+  .modal-estatisticas > div > div:last-child {
+    font-size: 0.85rem;
+  }
 }
 
 /* barras de rolagem customizadas */
@@ -975,6 +1097,92 @@ input:focus-visible,
 
 .acoes-cliente-visivel {
   display: flex;
+}
+
+/* Meta Mensal */
+.secao-meta-mensal {
+  margin-bottom: 2rem;
+}
+
+.secao-meta-mensal .mensagem-sucesso {
+  color: var(--retorno-sucesso);
+  font-weight: 600;
+}
+
+.barra-progresso-container {
+  position: relative;
+  margin-bottom: 0.5rem;
+}
+
+.barra-progresso {
+  width: 100%;
+  height: 20px;
+  background: var(--fundo-interativo);
+  border-radius: var(--raio-borda-m);
+  overflow: hidden;
+  border: 1px solid var(--borda-sutil);
+}
+
+.barra-progresso > div {
+  height: 100%;
+  background: var(--marca-padrao);
+  transition: width 0.3s ease;
+}
+
+.barra-progresso[aria-valuenow="100"] > div {
+  background: var(--retorno-sucesso);
+}
+
+/* Meta Mensal */
+.secao-meta-mensal h4 {
+  color: var(--texto-titulo);
+  margin-bottom: 1rem;
+}
+
+.meta-input-container {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.meta-input-wrapper {
+  flex: 1;
+  min-width: 0; /* Evita overflow em telas pequenas */
+}
+
+.meta-input-wrapper .rotulo {
+  margin-bottom: 0.5rem;
+}
+
+.meta-input-wrapper input {
+  margin-bottom: 0;
+  width: 100%;
+}
+
+.meta-btn-wrapper {
+  flex-shrink: 0;
+  width: auto;
+}
+
+.meta-btn-wrapper button {
+  width: 3.5rem;
+  height: 3rem;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 480px) {
+  .meta-input-container {
+    gap: 0.75rem;
+  }
+  
+  .meta-btn-wrapper button {
+    width: 3rem;
+    height: 2.75rem;
+  }
 }
 
 /* animações */
@@ -1178,5 +1386,39 @@ input:focus-visible,
 @media (pointer: coarse) and (hover: none) {
   * {
     -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* Meta Mensal */
+.meta-input-container {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  align-items: flex-end;
+}
+
+.meta-input-wrapper {
+  flex: 1;
+  min-width: 0; /* Evita que o input cresça além do container */
+}
+
+.meta-btn-wrapper {
+  flex-shrink: 0; /* Evita que o botão encolha */
+}
+
+.meta-btn-wrapper .modal-botao {
+  margin: 0;
+  padding: 0.85rem 1.5rem;
+  width: auto;
+  min-width: unset;
+}
+
+@media (max-width: 480px) {
+  .meta-input-container {
+    gap: 0.5rem;
+  }
+  
+  .meta-btn-wrapper .modal-botao {
+    padding: 0.85rem 1rem;
   }
 }
