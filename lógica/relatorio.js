@@ -126,6 +126,11 @@ function criarElementoModal() {
 }
 
 function gerarHTMLRelatorio(stats) {
+  const metaMensal = localStorage.getItem('metaMensal') || 0;
+  const progresso = (stats.totalDividas / metaMensal) * 100;
+  const progressoFormatado = Math.min(100, Math.max(0, progresso));
+  const faltaParaMeta = Math.max(0, metaMensal - stats.totalDividas);
+  
   return `
     <div style="text-align: center; margin-bottom: 2rem;">
       <i class="fas fa-chart-bar modal-icone" style="color: var(--marca-padrao);"></i>
@@ -133,6 +138,7 @@ function gerarHTMLRelatorio(stats) {
       <p style="color: var(--texto-corpo);">Resumo geral dos dados do sistema</p>
     </div>
     ${gerarEstatisticasHTML(stats)}
+    ${gerarMetaMensalHTML(stats.totalDividas, metaMensal, progressoFormatado, faltaParaMeta)}
     ${stats.topClientes.length > 0 ? gerarTopClientesHTML(stats.topClientes) : ''}
     <div style="text-align: center; margin-top: auto; padding-top: 1rem;">
       <button id="fecharRelatorio" class="modal-botao" aria-label="Fechar relatório">Fechar</button>
@@ -208,12 +214,128 @@ function gerarClienteHTML(cliente, index) {
   `;
 }
 
+function gerarMetaMensalHTML(totalDividas, metaMensal, progresso, faltaParaMeta) {
+  const metaAtingida = totalDividas >= metaMensal;
+  const mensagemStatus = metaAtingida 
+    ? '<span class="mensagem-sucesso">Meta atingida!</span>'
+    : `<span>Faltam ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(faltaParaMeta)} para atingir a meta</span>`;
+  
+  return `
+    <div class="secao-meta-mensal" style="margin-bottom: 2rem;">
+      <h4 style="color: var(--texto-titulo); margin-bottom: 1rem;">Meta Mensal de Recebimento</h4>
+      <div class="meta-input-container">
+        <div class="meta-input-wrapper">
+          <label for="inputMetaMensal" class="rotulo">Valor da Meta</label>
+          <input 
+            type="number" 
+            id="inputMetaMensal" 
+            class="modal-input"
+            min="0" 
+            step="0.01" 
+            placeholder="0,00"
+            value="${metaMensal}"
+            aria-label="Valor da meta mensal em reais"
+          >
+        </div>
+        <div class="meta-btn-wrapper">
+          <button 
+            id="btnSalvarMeta" 
+            class="modal-botao"
+            aria-label="Salvar valor da meta"
+          >
+            <i class="fas fa-save"></i>
+          </button>
+        </div>
+      </div>
+      
+      <div class="barra-progresso-container" style="margin-bottom: 0.5rem;">
+        <div 
+          role="progressbar" 
+          class="barra-progresso" 
+          aria-valuenow="${progresso}" 
+          aria-valuemin="0" 
+          aria-valuemax="100" 
+          style="
+            width: 100%; 
+            height: 20px; 
+            background: var(--fundo-interativo);
+            border-radius: var(--raio-borda-m);
+            overflow: hidden;
+          "
+        >
+          <div 
+            style="
+              width: ${progresso}%; 
+              height: 100%; 
+              background: ${metaAtingida ? 'var(--retorno-sucesso)' : 'var(--marca-padrao)'};
+              transition: width 0.3s ease;
+            "
+          ></div>
+        </div>
+      </div>
+      
+      <div style="
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        color: var(--texto-corpo);
+        font-size: 0.9rem;
+      ">
+        <div style="font-weight: 600;">
+          ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalDividas)}
+          <span style="opacity: 0.7;">/</span>
+          ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(metaMensal)}
+        </div>
+        <div style="color: ${metaAtingida ? 'var(--retorno-sucesso)' : 'var(--texto-corpo)'}">
+          ${mensagemStatus}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 function configurarEventosFecharRelatorio(overlay, fecharModal) {
   const fechar = () => {
     aoFecharModal();
     fecharModal();
   };
   
+  const configurarEventosMeta = () => {
+    const btnSalvarMeta = overlay.querySelector('#btnSalvarMeta');
+    const inputMetaMensal = overlay.querySelector('#inputMetaMensal');
+    
+    if (btnSalvarMeta && inputMetaMensal) {
+      btnSalvarMeta.addEventListener('click', () => {
+        const valor = parseFloat(inputMetaMensal.value);
+        if (!isNaN(valor) && valor >= 0) {
+          localStorage.setItem('metaMensal', valor);
+          calcularEstatisticas().then(stats => {
+            const metaMensal = valor;
+            const progresso = (stats.totalDividas / metaMensal) * 100;
+            const progressoFormatado = Math.min(100, Math.max(0, progresso));
+            const faltaParaMeta = Math.max(0, metaMensal - stats.totalDividas);
+            
+            // Atualiza apenas a seção da meta
+            const secaoMeta = overlay.querySelector('.secao-meta-mensal');
+            if (secaoMeta) {
+              secaoMeta.outerHTML = gerarMetaMensalHTML(stats.totalDividas, metaMensal, progressoFormatado, faltaParaMeta);
+              configurarEventosMeta(); // Reconfigura os eventos após atualizar o HTML
+            }
+          });
+        }
+      });
+      
+      // Permite salvar com Enter
+      inputMetaMensal.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          btnSalvarMeta.click();
+        }
+      });
+    }
+  };
+  
+  configurarEventosMeta();
   overlay.querySelector('#fecharRelatorio')?.addEventListener('click', fechar);
   overlay.addEventListener('click', e => e.target === overlay && fechar());
 }
