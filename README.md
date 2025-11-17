@@ -109,6 +109,8 @@ Como o navegador busca e baixa as atualizações:
 9. **Relatório**  
    Veja estatísticas gerais em Relatório.
 
+   **Nota:** O campo "Meta Mensal de Recebimento" no Relatório é pré-preenchido com **R$ 15.000** como sugestão inicial; o usuário pode alterar esse valor livremente e salvá-lo como preferência local.
+
 10. **Configurações**  
     Ative/desative senha e ajustes de usabilidade.
 

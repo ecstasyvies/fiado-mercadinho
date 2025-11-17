@@ -126,8 +126,9 @@ function criarElementoModal() {
 }
 
 function gerarHTMLRelatorio(stats) {
-  const metaMensal = localStorage.getItem('metaMensal') || 0;
-  const progresso = (stats.totalDividas / metaMensal) * 100;
+  const metaMensalRaw = localStorage.getItem('metaMensal');
+  const metaMensal = metaMensalRaw !== null ? (parseFloat(metaMensalRaw) || 0) : 15000;
+  const progresso = metaMensal > 0 ? (stats.totalDividas / metaMensal) * 100 : 0;
   const progressoFormatado = Math.min(100, Math.max(0, progresso));
   const faltaParaMeta = Math.max(0, metaMensal - stats.totalDividas);
   
