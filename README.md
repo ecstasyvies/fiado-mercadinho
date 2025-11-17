@@ -1,6 +1,6 @@
 # Sistema de Gestão de Fiados
 
-![Interface do sistema de gestão de fiados exibida em tela escura, com dois painéis principais: à esquerda, a seção “Gestão de Clientes”, contendo campos para adicionar e buscar clientes, além de botões roxos para exportar dados, importar dados e gerar relatórios; à direita, a seção “Registro de Compras”, com campos para descrição do produto e valor em reais, botão para registrar compra e área que mostra o total das compras registradas.](https://res.cloudinary.com/dbkobxtnj/image/upload/v1761694365/previadosistema_w95cw5.png)
+![Interface do sistema de gestão de fiados exibida em tela escura, com dois painéis principais: à esquerda, a seção "Gestão de Clientes", contendo campos para adicionar e buscar clientes, além de botões roxos para exportar dados, importar dados e gerar relatórios; à direita, a seção "Registro de Compras", com campos para descrição do produto e valor em reais, botão para registrar compra e área que mostra o total das compras registradas.](https://res.cloudinary.com/dbkobxtnj/image/upload/v1761694365/previadosistema_w95cw5.png)
 
 > Sistema para gestão de fiados em estabelecimentos comerciais de pequeno porte. Permite o registro, monitoramento e liquidação de dívidas de forma totalmente offline, garantindo acessibilidade e independência de conectividade.
 
@@ -22,20 +22,22 @@ Meu sistema permite registrar produtos fiados, calcular totais automaticamente e
 
 ---
 
-## FUNCIONALIDADES
-- Cadastro e gerenciamento de clientes
-- Registro de produtos fiados com valores individualizados
-- Cálculo automático do total das dívidas
-- Registro de pagamentos parciais e liquidação de dívidas
-- Autocompletar para nomes de clientes e produtos
-- Busca rápida por clientes
-- Exportação e importação de dados para backup
-- Interface responsiva e otimizada para dispositivos móveis
-- Navegação completa por teclado com conformidade AAA em acessibilidade
-- Proteção por senha local (opcional)
-- Relatórios detalhados com estatísticas de fiados
-- Instalável como PWA (Web App), com funcionamento offline e cache de recursos
-- Atualização controlada e automática
+## FUNCIONALIDADES PRINCIPAIS
+- ✅ Cadastro e gerenciamento de clientes
+- ✅ Registro de produtos/compras fiadas com valores individualizados
+- ✅ **Anotações sobre clientes** (com auto-salvamento)
+- ✅ Cálculo automático do total das dívidas
+- ✅ Registro de pagamentos parciais (aplicação sequencial)
+- ✅ Liquidação completa de dívidas
+- ✅ Busca e filtragem rápida de clientes
+- ✅ Exportação e importação de dados em JSON (backup)
+- ✅ Relatórios detalhados com estatísticas e meta mensal
+- ✅ Interface responsiva (desktop e mobile)
+- ✅ Navegação completa por teclado (WCAG 2.1 AAA)
+- ✅ Proteção por senha local (opcional)
+- ✅ Tema claro/escuro
+- ✅ Instalável como PWA com funcionamento 100% offline
+- ✅ Atualização automática
 
 ---
 
@@ -49,76 +51,284 @@ Meu sistema permite registrar produtos fiados, calcular totais automaticamente e
 
 ---
 
-## INSTALAÇÃO E USO
+## INSTALAÇÃO
 
-1. Clone o repositório usando Git:
+### Usuários Finais
+Acesse diretamente: [Fiados do Mercadinho](https://ecstasyvies.github.io/fiado-mercadinho/)
 
-	```bash
-	git clone https://github.com/ecstasyvies/fiado-mercadinho
-	```
+O sistema é **100% offline-first** com PWA (Progressive Web App). Após o primeiro acesso em HTTPS, você pode:
+- **Instalar** como app nativo usando a opção do navegador
+- **Usar offline** mesmo sem internet (dados salvos localmente)
+- **Sincronização automática** de atualizações quando conectado
 
-	Ou, se preferir, faça o download em formato ZIP e extraia os arquivos.
+### Desenvolvimento Local
+1. Clone o repositório:
+   ```bash
+   git clone https://github.com/ecstasyvies/fiado-mercadinho
+   cd fiado-mercadinho
+   ```
 
-2. Abra a pasta do projeto em um editor de código (por exemplo, Visual Studio Code).
+2. Abra a pasta completa no editor (ex: Visual Studio Code)
 
-3. Para desenvolvimento e testes, utilize sempre a estrutura completa do projeto (abra a pasta inteira no editor).
+3. Use um servidor local ou extensão de preview
 
-> **Observação**: É fundamental abrir a pasta completa no editor de código para que recursos como IndexedDB funcionem corretamente. Não execute apenas o arquivo `index.html` isoladamente. Para visualização, utilize a extensão de preview do editor ou um servidor local.
-
-### PWA (Instalação, Offline e Atualizações)
-
-- Instalação (usuários finais): basta acessar o site público em HTTPS e usar a opção de instalar do próprio navegador. Não é necessário usar `localhost`.
-- Instalação (desenvolvimento): opcionalmente usar `http://localhost` durante o desenvolvimento.
-- Offline: após o primeiro acesso, o conteúdo principal é armazenado e permanece disponível sem internet.
-- Atualizações: o navegador verifica e baixa atualizações automaticamente quando o usuário abre/retorna ao site ou recarrega a página.
-
-Como o navegador busca e baixa as atualizações:
-1) Ao abrir/voltar ao site, o navegador checa o `service-worker.js` e baixa uma nova versão se houver.
-2) A nova versão instala em paralelo e fica em “waiting” até você decidir ativá-la.
+> **Importante**: Sempre abra a pasta inteira no editor. IndexedDB requer que o projeto esteja em um contexto completo, não em arquivo isolado.
 
 ---
 
-### 📖 Como Usar o Sistema
+## 📋 GUIA COMPLETO DE FUNCIONALIDADES
 
-1. **Acesso**  
-   Abra o sistema no navegador. Se houver senha, insira-a; senão, pode criar uma em Configurações.
+### 🔐 **Gerenciamento de Clientes**
 
-2. **Adicionar cliente**  
-   Digite o nome no campo e clique em Adicionar Cliente.
+#### Adicionar Cliente
+- Preencha o campo "Nome do Cliente" (obrigatório)
+- Clique em "Adicionar Cliente"
+- Sistema valida duplicatas automaticamente
+- Cliente adicionado à lista com data de cadastro registrada
 
-3. **Buscar/Selecionar cliente**  
-   Use a busca para encontrar clientes. Clique em um nome para selecioná-lo.
+#### Buscar e Filtrar Clientes
+- Use o campo "Buscar cliente..." para localização rápida
+- Filtro funciona em tempo real durante digitação
+- Prioriza nomes que começam com o termo
+- Indica quantidade total de clientes (ex: "Total de clientes: 5")
+- Ícone 📝 ao lado do nome indica cliente com anotações
 
-4. **Registrar fiado**  
-   Com o cliente selecionado, preencha o nome do produto e o valor, depois clique em Registrar Compra.
+#### Selecionar Cliente
+- Clique no nome do cliente para selecioná-lo
+- Cliente destacado em azul e exibe:
+  - Seção de anotações (se houver)
+  - Campo de descrição do produto (foco automático)
+  - Botões de pagamento e ações
+- Desclique para desselecionar (clique novamente no cliente selecionado)
+- **Navegação por teclado**: use setas ↑/↓ para navegar entre clientes, Enter para selecionar
 
-5. **Gerenciar itens**  
-   Para remover um produto, use o ícone de lixeira ao lado do item.
+#### Remover Cliente
+- Selecione o cliente desejado
+- Clique em "Remover Cliente"
+- **Alerta de dívida**: Se houver saldo pendente, confirma valor antes de remover
+- Confirmação obrigatória (não pode ser desfeita)
+- Todos os produtos e registros do cliente são removidos
 
-6. **Pagamentos**
-   * **Parcial:** Clique em Pagamento Parcial e informe o valor pago.
-   * **Quitar tudo:** Use Liquidar Dívida para zerar a dívida.
+---
 
-7. **Remover cliente**  
-   Clique em Remover Cliente (com confirmação).
+### 📝 **Anotações sobre Clientes**
 
-8. **Backup e restore**  
-   * **Exportar:** Baixe um arquivo de backup com Exportar Dados.
-   * **Importar:** Restaure dados com Importar Dados.
+#### Adicionar/Editar Anotações
+- Ao selecionar um cliente, a seção "Anotações do Cliente" aparece
+- Textarea grande para registrar informações:
+  - Preferências de produto
+  - Limites de crédito informais
+  - Informações de contato
+  - Observações especiais
+- **Auto-salvamento**: anotações são salvas **automaticamente** ao sair do campo (após 1 segundo de inatividade)
+- Também salva ao pressionar Enter (desktop) ou Ctrl+Enter (mobile)
+- Botão "Salvar Anotações" para confirmação manual
+- Visual de feedback: campo muda cor ao salvar
+- **Ícone 📝** aparece na lista indicando clientes com anotações
 
-9. **Relatório**  
-   Veja estatísticas gerais em Relatório.
+---
 
-   **Nota:** O campo "Meta Mensal de Recebimento" no Relatório é pré-preenchido com **R$ 15.000** como sugestão inicial; o usuário pode alterar esse valor livremente e salvá-lo como preferência local.
+### 🛒 **Registro de Compras Fiadas**
 
-10. **Configurações**  
-    Ative/desative senha e ajustes de usabilidade.
+#### Registrar Nova Compra
+- Selecione um cliente primeiro (obrigatório)
+- Preencha "Descrição do Produto" (nome ou detalhes)
+- Preencha "Valor (R$)" com o preço (mínimo R$ 0,01)
+- Clique em "Registrar Compra"
+- Produto adicionado à lista com:
+  - Data de registro (formato: DD/MM/AAAA)
+  - Valor total em moeda formatada
+  - Status de pagamento (se houver)
 
-11. **Dicas**  
-   * Use **Tab** e **Enter** para navegar pelo teclado.
-   * Funciona offline; os dados ficam salvos no próprio dispositivo.
-   * Faça backups regulares.
-   * Ideal para até algumas centenas de clientes.
+#### Listar Compras Registradas
+- Aparecem em **ordem cronológica reversa** (mais recentes primeiro)
+- Para cada produto exibe:
+  - **Nome do produto**
+  - **Data da compra**
+  - **Valor total** (destacado em azul)
+  - **Status de pagamento**:
+    - Verde "Quitado" (totalmente pago)
+    - Verde "Pago: R$ XXX" + Amarelo "Pendente: R$ YYY" (parcialmente pago)
+    - Sem indicação se não houver pagamento
+  - **Botão de lixeira** para remover
+
+#### Visualização de Totais
+- **"Montante"** ou **"Total"**: valor total de todas as compras
+- **"Pago"**: quanto já foi quitado (se houver pagamento)
+- **"Pendente"**: quanto ainda deve (se houver diferença)
+- Cores padronizadas para fácil identificação:
+  - Azul claro: total/montante
+  - Verde: valores pagos
+  - Amarelo: pendências
+
+#### Remover Produto
+- Clique no ícone de lixeira ao lado do produto
+- Confirmação obrigatória
+- Se havia pagamento no produto, valor é estornado
+- Se a remoção deixar saldo zero, dívida é liquidada automaticamente
+- Lista é atualizada em tempo real
+
+---
+
+### 💰 **Gerenciamento de Pagamentos**
+
+#### Pagamento Parcial
+- Selecione um cliente com dívida pendente
+- Clique em "Pagamento Parcial"
+- Modal exibe:
+  - Cliente selecionado
+  - Valor pendente total
+  - Campo para digitar valor do pagamento
+- Digite o valor (até o limite do pendente)
+- Clique "Confirmar"
+- Sistema **aplica o pagamento sequencialmente** aos produtos (mais antigos primeiro)
+- Produto é marcado como "Quitado" quando totalmente pago
+- Feedback visual confirma sucesso
+
+#### Liquidar Dívida
+- Selecione um cliente com dívida
+- Clique em "Liquidar Dívida"
+- Confirmação com valor total e quantidade de produtos
+- **Ação irreversível**: confirma antes de executar
+- Todos os produtos são removidos
+- Saldo zerado
+- Histórico de pagamento registrado automaticamente
+
+---
+
+### 📊 **Relatório e Estatísticas**
+
+#### Acessar Relatório
+- Clique em "Relatório" (botão no painel superior)
+- Botão fica oculto se não houver clientes
+- Mostra modal com resumo completo do sistema
+
+#### Seções do Relatório
+
+**1. Estatísticas Gerais (Grid 2x2)**
+- **Total em Fiados**: soma de todos os débitos pendentes (em vermelho)
+- **Total de Clientes**: contagem de clientes cadastrados (em verde)
+- **Com Dívidas**: clientes com saldo pendente (em amarelo)
+- **Itens Fiados**: total de produtos registrados (em vermelho)
+
+**2. Meta Mensal de Recebimento**
+- Pré-preenchida com **R$ 15.000** como sugestão inicial
+- Campo editável: altere conforme necessário
+- Salva a preferência localmente (persiste entre acessos)
+- **Barra de progresso visual**:
+  - Exibe percentual de atingimento
+  - Muda cor (azul → verde) quando meta atingida
+- Exibe:
+  - Valor coletado / Meta
+  - Mensagem "Meta atingida!" (verde) ou "Faltam R$ XXX para atingir a meta"
+
+**3. Principais Clientes em Dívida**
+- Ranking dos **5 clientes com maior débito**
+- Exibe para cada:
+  - Posição (1º a 5º)
+  - Nome do cliente
+  - Quantidade de itens fiados
+  - Valor total da dívida (em azul)
+- Ordenação automática (maior débito primeiro)
+
+---
+
+### 💾 **Backup e Importação de Dados**
+
+#### Exportar Dados (Backup)
+- Clique em "Exportar Dados"
+- Cria arquivo JSON (`backup-fiados.json`) com **todos os dados** do sistema:
+  - Clientes cadastrados
+  - Produtos/compras de cada cliente
+  - Anotações
+  - Histórico de pagamentos
+  - Meta mensal (se configurada)
+  - Data/hora do backup
+- Arquivo é baixado automaticamente
+- **Recomendação**: faça backups regulares (semanal)
+
+#### Importar Dados (Restore)
+- Clique em "Importar Dados"
+- Selecione arquivo `backup-fiados.json` previamente exportado
+- Sistema valida arquivo antes de restaurar:
+  - Verifica formato JSON válido
+  - Valida estrutura de dados
+  - Confirma integridade (não aceita arquivos corrompidos)
+- **Aviso importante**: importação **sobrescreve todos os dados atuais**
+- Confirmação obrigatória antes de prosseguir
+- Feedback visual ao final: "Dados importados com sucesso!"
+
+---
+
+### ⚙️ **Configurações do Sistema**
+
+Acesso: Clique no botão **"Configurações"** (ícone engrenagem) no canto superior
+
+#### 🔐 Proteção por Senha
+- **Estado**: mostra se está ativada ou desativada
+- **Ativar**:
+  - Clique em "Ativar"
+  - Defina uma senha (mínimo 4 caracteres)
+  - Confirme digitando novamente
+  - Senha protege acesso ao sistema
+- **Remover**:
+  - Se senha já configurada, clique em "Remover"
+  - Confirmação de segurança solicitada
+  - Sistema fica desprotegido
+
+#### 🎨 Tema Claro/Escuro
+- **Padrão**: tema escuro (economia de bateria, menos fadiga visual)
+- **Ativar tema claro**:
+  - Clique em "Ativar Tema Claro"
+  - Interface muda para fundo claro com textos escuros
+  - Preferência salva e persiste em reaberturas
+  - Útil em ambientes com muita iluminação
+
+---
+
+### ⌨️ **Navegação por Teclado (Acessibilidade Completa)**
+
+O sistema é **100% navegável por teclado**, conforme WCAG 2.1 AAA:
+
+| Tecla | Ação |
+|-------|------|
+| **Tab** | Navega entre elementos |
+| **Shift + Tab** | Navega para trás |
+| **Enter** | Ativa botão ou seleciona item |
+| **Espaço** | Alterna switches/checkboxes |
+| **↑ / ↓** | Seta entre itens em listas (clientes, produtos) |
+| **Esc** | Fecha modais |
+| **Ctrl+Enter** (mobile) | Salva anotações |
+
+#### Fluxo Automático de Foco
+- Após adicionar cliente: foco vai para busca
+- Após selecionar cliente: foco vai para campo de produto
+- Após adicionar produto: foco volta para descrição
+- Modais mantêm foco interno (sem retorno ao fundo)
+
+---
+
+### 📱 **Recursos Técnicos**
+
+#### Offline-First (PWA)
+- Funciona **100% sem internet** após primeiro acesso
+- Service Worker gerencia cache automático
+- Atualizações baixadas em background
+- Dados salvos localmente em IndexedDB (não na nuvem)
+
+#### Armazenamento de Dados
+- **IndexedDB**: banco de dados local no navegador
+- **localStorage**: configurações (tema, meta, senha)
+- **Sem sincronização remota**: dados permanecem no dispositivo
+- **Recomendado**: máximo ~500 clientes para ótima performance
+
+#### Conformidade de Acessibilidade
+- ✅ WCAG 2.1 AAA (maior nível de conformidade)
+- ✅ Contraste mínimo 4.5:1 (cores testadas)
+- ✅ Navegação completa por teclado
+- ✅ Suporte a leitores de tela (ARIA labels/descriptions)
+- ✅ Feedback visual e auditivo (notificações)
+- ✅ Sem captura de foco inesperada
 
 ---
 
@@ -128,7 +338,7 @@ Como o navegador busca e baixa as atualizações:
 |-----------------|---------------------------------------------|
 | `index.html`    | Interface principal e entrada do sistema    |
 | `principal.js`  | Coordenação geral e escuta de eventos       |
-| `clientes.js`   | Gerenciamento de clientes                   |
+| `clientes.js`   | Gerenciamento de clientes e anotações       |
 | `produtos.js`   | Registro e controle de fiados               |
 | `dataset.js`    | Configuração e operação do IndexedDB        |
 | `interface.js`  | Elementos visuais e notificações            |
@@ -139,20 +349,7 @@ Como o navegador busca e baixa as atualizações:
 | `layout.css`    | Estilização completa da interface           |
 | `service-worker.js` | Cache offline, políticas e atualização  |
 | `manifest.webmanifest` | Metadados PWA (nome, ícones, tema)   |
-| `icons/`        | Ícones do app (SVG; PNGs podem ser adicionados futuramente) |
-
----
-
-## ACESSIBILIDADE
-
-O sistema segue as diretrizes WCAG 2.1 AAA:
-
-- **Navegação por teclado completa**: Todos os elementos são acessíveis via Tab/Shift+Tab
-- **Contraste AAA**: Cores otimizadas para contraste ≥4.5:1 em todos os elementos
-- **Foco inteligente**: Navegação contextual que direciona o foco automaticamente
-- **Atributos ARIA**: Elementos semânticos com labels e descrições adequadas
-- **Suporte a leitores de tela**: Estrutura HTML semântica e aria-live regions
-- **Navegação fluida**: Enter/Espaço para ativação, setas para navegação em listas
+| `icons/`        | Ícones do app (SVG)                         |
 
 ---
 
@@ -170,8 +367,9 @@ O sistema segue as diretrizes WCAG 2.1 AAA:
 
 ## COMPORTAMENTOS DE INTERFACE IMPORTANTES
 
-- Botões de “Exportar Dados” e “Relatório” ficam ocultos quando não há clientes cadastrados. Enquanto ocultos, a área exibe a mensagem: “Cadastre clientes para gerar relatório”.
+- Botões de "Exportar Dados" e "Relatório" ficam ocultos quando não há clientes cadastrados. Enquanto ocultos, a área exibe a mensagem: "Cadastre clientes para gerar relatório".
 - Ações do cliente (Pagamento Parcial, Liquidar) seguem regras de visibilidade próprias ao selecionar um cliente.
+- Ícone 📝 indica automaticamente clientes com anotações salvas
 
 ---
 
@@ -181,6 +379,8 @@ O sistema segue as diretrizes WCAG 2.1 AAA:
 - Autocompletar para clientes e produtos
 - Importação de dados JSON com validação e segurança
 - Proteção por senha local (opcional)
+- **Anotações automáticas sobre clientes** (novo)
+- **Meta mensal de recebimento editável** (novo)
 - Relatórios detalhados e ranking de clientes
 - Interface escura, acessível e responsiva
 - Modais e botões com contraste aprimorado
@@ -197,7 +397,7 @@ Este projeto está licenciado sob a [GNU Affero General Public License v3.0](htt
 - Estudo e modificação do software
 - Redistribuição e compartilhamento de versões modificadas
 
-**Importante**: alterações utilizadas em servidores devem disponibilizar o código-fonte completo para os usuários. Consulte o arquivo  [LICENSE](LICENSE) para mais detalhes.
+**Importante**: alterações utilizadas em servidores devem disponibilizar o código-fonte completo para os usuários. Consulte o arquivo [LICENSE](LICENSE) para mais detalhes.
 
 ---
 
